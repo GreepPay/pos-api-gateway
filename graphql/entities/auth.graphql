@@ -1,0 +1,18 @@
+# Auth Queries
+extend type Query {
+    "Get the authenticated user"
+    AuthUser: User @field(resolver: "AuthQuery@authUser")
+
+    "Get a single user"
+    SingleUser(username: String! @eq): User @first
+}
+
+
+# Auth mutations
+extend type Mutation {
+
+}
+
+extend type Mutation @guard {
+
+}

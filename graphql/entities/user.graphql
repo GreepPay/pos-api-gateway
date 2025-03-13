@@ -1,0 +1,21 @@
+
+# User Queries
+extend type Query {
+    "Fetch a user profile by auth_user_id"
+    UserProfile(auth_user_id: String! @eq): UserProfile @first
+}
+
+# User Mutations
+extend type Mutation {
+    "Create a new user profile"
+    createUserProfile(input: UserProfileInput!): UserProfile!
+        @field(resolver: "UserMutation@createProfile")
+
+    "Update an existing user profile"
+    updateUserProfile(auth_user_id: String!, input: UserProfileInput!): UserProfile!
+        @field(resolver: "UserMutation@updateProfile")
+
+    "Delete a user profile"
+    deleteUserProfile(auth_user_id: String!): DeleteResponse!
+        @field(resolver: "UserMutation@deleteProfile")
+}

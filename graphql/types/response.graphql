@@ -1,0 +1,10 @@
+type AuthResponse {
+    token: String!
+    user: User!
+}
+
+type UserResponse {
+    success: Boolean!
+    message: String!
+    data: User!
+}

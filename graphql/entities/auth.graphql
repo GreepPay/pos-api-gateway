@@ -7,12 +7,21 @@ extend type Query {
     SingleUser(username: String! @eq): User @first
 }
 
-
 # Auth mutations
 extend type Mutation {
-
-}
-
-extend type Mutation @guard {
-
+    "Sign in user"
+    SignIn(password: String!, username: String! @trim): UserResponse!
+        @field(resolver: "AuthMutation@signIn")
+    SignUp(
+        firstName: String!
+        lastName: String!
+        email: String! @trim
+        phoneNumber: String!
+        password: String!
+        role: String!
+        ssoId: String
+        otp: String
+        isSso: Boolean!
+        ignoreError: Boolean!
+    ): UserResponse! @field(resolver: "AuthMutation@signUp")
 }

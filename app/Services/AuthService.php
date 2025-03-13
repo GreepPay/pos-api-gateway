@@ -19,7 +19,7 @@ class AuthService
             env("SERVICE_BROKER_URL") . "/broker/greep-auth/" . env("APP_STATE")
         );
         $this->authNetwork = new NetworkHandler(
-            "auth",
+            "",
             $this->serviceUrl,
             $useCache,
             $headers,
@@ -29,11 +29,16 @@ class AuthService
 
     public function addUser($request)
     {
-        return $this->authNetwork->post("/create-user", $request);
+        return $this->authNetwork->post("/v1/auth/users", $request->all());
     }
 
     public function loginUser($request)
     {
-        return $this->authNetwork->post("/login", $request->all());
+        return $this->authNetwork->post("/v1/auth/login", $request->all());
+    }
+
+    public function authUser()
+    {
+        return $this->authNetwork->get("/v1/auth/me");
     }
 }

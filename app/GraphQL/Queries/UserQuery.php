@@ -2,17 +2,20 @@
 
 namespace App\GraphQL\Queries;
 
-use App\Models\User;
+use App\Models\UserProfile;
 use Illuminate\Support\Facades\Auth;
+use Log;
 
 final class UserQuery
 {
-    public function authUser()
+    public function userProfile()
     {
-        if (Auth::user()) {
-            return User::where("id", Auth::user()->id)->first();
+        $user = Auth::user();
+
+        if (! $user) {
+            return null;
         }
 
-        return null;
+        return UserProfile::where('auth_user_id', $user->id)->first();
     }
 }

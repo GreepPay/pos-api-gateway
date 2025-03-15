@@ -1,0 +1,51 @@
+# Notification Queries
+extend type Query {
+    "Get a specific notification by ID"
+    notification(id: ID!): Notification @field(resolver: "NotificationQuery@getNotification")
+
+    "Get all notifications for the authenticated user"
+    notifications: [Notification!]! @field(resolver: "NotificationQuery@getNotifications")
+}
+
+# Notification Mutations
+extend type Mutation {
+    "Register a device token"
+    registerDeviceToken(input: DeviceTokenInput!): DeviceTokenResponse!
+        @field(resolver: "NotificationMutation@registerDeviceToken")
+
+    "Update device token status"
+    updateDeviceToken(input: DeviceTokenUpdateInput!): DeviceTokenResponse!
+        @field(resolver: "NotificationMutation@updateDeviceToken")
+
+    "Delete a device token"
+    deleteDeviceToken(input: DeviceTokenDeleteInput!): DeleteResponse!
+        @field(resolver: "NotificationMutation@deleteDeviceToken")
+
+    "Send a notification using a template"
+    sendNotification(input: NotificationInput!): NotificationResponse!
+        @field(resolver: "NotificationMutation@sendNotification")
+
+    "Delete a notification"
+    deleteNotification(input: NotificationDeleteInput!): DeleteResponse!
+        @field(resolver: "NotificationMutation@deleteNotification")
+
+    "Update notification read status"
+    updateNotificationStatus(input: NotificationStatusInput!): NotificationResponse!
+        @field(resolver: "NotificationMutation@updateNotificationStatus")
+
+    "Send a broadcast notification to multiple users"
+    broadcastNotification(input: BroadcastNotificationInput!): BroadcastResponse!
+        @field(resolver: "NotificationMutation@broadcastNotification")
+
+    "Create a new notification template"
+    createNotificationTemplate(input: NotificationTemplateInput!): NotificationTemplateResponse!
+        @field(resolver: "NotificationMutation@createNotificationTemplate")
+
+    "Update an existing notification template"
+    updateNotificationTemplate(input: NotificationTemplateUpdateInput!): NotificationTemplateResponse!
+        @field(resolver: "NotificationMutation@updateNotificationTemplate")
+
+    "Delete a notification template"
+    deleteNotificationTemplate(input: NotificationTemplateDeleteInput!): DeleteResponse!
+        @field(resolver: "NotificationMutation@deleteNotificationTemplate")
+}

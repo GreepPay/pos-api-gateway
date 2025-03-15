@@ -1,8 +1,7 @@
 
 # User Queries
 extend type Query {
-    "Fetch a user profile by auth_user_id"
-    UserProfile(auth_user_id: String! @eq): UserProfile @first
+    userProfile: User @field(resolver: "UserQuery@userProfile")
 }
 
 # User Mutations

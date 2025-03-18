@@ -6,6 +6,7 @@ use App\Exceptions\GraphQLException;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 
 final class UserMutation
 {
@@ -23,13 +24,10 @@ final class UserMutation
         }
 
         $input = $args["input"];
-
-        if (!isset($input["auth_user_id"]) || !isset($input["user_type"])) {
-            throw new GraphQLException("Missing required fields: 'auth_user_id' or 'user_type'");
-        }
-
+        $user = Auth::user();
+        
         $profileData = [
-            "auth_user_id" => $input["auth_user_id"],
+            "auth_user_id" => $user->uuid,
             "user_type" => $input["user_type"],
             "profile_picture" => $input["profile_picture"] ?? null,
             "profileData" => []
@@ -110,5 +108,62 @@ final class UserMutation
         );
 
         return $response["data"]["deleteProfile"] ?? null;
+    }
+
+    /**
+     * Submit a verification request.
+     */
+    public function submitVerification($_, array $args)
+    {
+        $requiredFields = ['user_type', 'document_type', 'document_url'];
+        foreach ($requiredFields as $field) {
+            if (!isset($args[$field])) {
+                throw new GraphQLException("Missing required field: {$field}");
+            }
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            throw new GraphQLException("Unauthenticated");
+        }
+
+        $payload = [
+            'auth_user_id'      => $user->uuid,
+            'user_type'         => $args['user_type'],
+            'document_type'     => $args['document_type'],
+            'document_url'      => $args['document_url'],
+            'verification_data' => $args['verification_data'] ?? null,
+        ];
+
+        $response = $this->userService->submitVerification(new Request($payload));
+        // Assuming the response data contains the verification details.
+        return $response["data"] ?? $response;
+    }
+
+    /**
+     * Approve or reject a verification request.
+     */
+    public function approveVerification($_, array $args)
+    {
+        $requiredFields = ['verificationId', 'status'];
+        foreach ($requiredFields as $field) {
+            if (!isset($args[$field])) {
+                throw new GraphQLException("Missing required field: {$field}");
+            }
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            throw new GraphQLException("Unauthenticated");
+        }
+
+        $payload = [
+            'verificationId' => $args['verificationId'],
+            'status'         => $args['status'],
+            'auth_user_id'   => $user->uuid,
+        ];
+
+        $response = $this->userService->approveVerification(new Request($payload));
+        return $response["data"] ?? $response;
     }
 }

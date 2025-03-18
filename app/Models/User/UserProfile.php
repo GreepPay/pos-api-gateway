@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,5 +23,22 @@ class UserProfile extends Model
     public function getUserTypeAttribute()
     {
         return $this->attributes['user_type'] ?? null;
+    }
+
+    public function business()
+    {
+        return $this->hasOne(Business::class, 'auth_user_id', 'auth_user_id');
+    }
+
+    // Define the relationship to Rider details
+    public function rider()
+    {
+        return $this->hasOne(Rider::class, 'auth_user_id', 'auth_user_id');
+    }
+
+    // Define the relationship to Customer details
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'auth_user_id', 'auth_user_id');
     }
 }

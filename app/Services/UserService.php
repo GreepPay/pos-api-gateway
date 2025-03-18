@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Datasource\NetworkHandler;
+use Illuminate\Http\Request;
 
 class UserService
 {
@@ -41,5 +42,15 @@ class UserService
     public function deleteProfile($request)
     {
         return $this->userNetwork->delete("/v1/profiles", $request->all());
+    }
+
+    public function submitVerification($request)
+    {
+        return $this->userNetwork->post("/v1/verification", $request->all());
+    }
+
+    public function approveVerification($request)
+    {
+        return $this->userNetwork->post("/v1/verification/approve", $request->all());
     }
 }

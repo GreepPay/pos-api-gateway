@@ -1,20 +1,40 @@
-
 # User Queries
-extend type Query {
-    userProfile: User @field(resolver: "UserQuery@userProfile")
+extend type Query @guard {
+    userProfile: UserProfileData @field(resolver: "UserQuery@userProfile")
 }
 
-# User Mutations
-extend type Mutation {
-    "Create a new user profile"
+# Profile Mutations (Authenticated)
+extend type Mutation @guard {
     createUserProfile(input: UserProfileInput!): UserProfile!
         @field(resolver: "UserMutation@createProfile")
-
-    "Update an existing user profile"
-    updateUserProfile(auth_user_id: String!, input: UserProfileInput!): UserProfile!
-        @field(resolver: "UserMutation@updateProfile")
+        
+    "Update user profile"
+    UpdateUserProfile(
+        auth_user_id: String!
+        user_type: String!
+        profile_picture: String
+    ): UserResponse! @field(resolver: "UserMutation@updateProfile")
 
     "Delete a user profile"
-    deleteUserProfile(auth_user_id: String!): DeleteResponse!
+    DeleteProfile(auth_user_id: String!): DefaultResponse!
         @field(resolver: "UserMutation@deleteProfile")
+}
+
+# Verification Mutations (Authenticated)
+extend type Mutation @guard {
+    "Submit a verification request"
+    SubmitVerification(
+        user_type: String!
+        document_type: String!
+        document_url: String!
+        verification_data: String
+    ): VerificationStatusResponse!
+        @field(resolver: "UserMutation@submitVerification")
+
+    "Approve or reject a verification request"
+    ApproveVerification(
+        verificationId: String!
+        status: String! # Allowed values: "Approved", "Rejected"
+    ): VerificationStatusResponse!
+        @field(resolver: "UserMutation@approveVerification")
 }

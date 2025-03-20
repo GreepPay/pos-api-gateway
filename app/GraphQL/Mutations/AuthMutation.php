@@ -1,10 +1,17 @@
 <?php
 
 namespace App\GraphQL\Mutations;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 
 final class AuthMutation
 {
+    protected AuthService $authService;
+    public function __construct()
+    {
+        $this->authService = new AuthService();
+    }
+
     public function signIn($_, array $args)
     {
         // authenticate user

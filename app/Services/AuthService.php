@@ -34,6 +34,6 @@ class AuthService
 
     public function loginUser($request)
     {
-        return $this->authNetwork->post("/login", $request->all());
+        return $this->authNetwork->post("/v1/auth/login", $request->all());
     }
 }

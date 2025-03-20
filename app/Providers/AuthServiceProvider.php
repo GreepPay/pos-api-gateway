@@ -2,25 +2,50 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\User\User;
+use App\Services\AuthService;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\RequestGuard;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The model to policy mappings for the application.
+     * Register any application services.
      *
-     * @var array<class-string, class-string>
+     * @return void
      */
-    protected $policies = [
-        //
-    ];
-
-    /**
-     * Register any authentication / authorization services.
-     */
-    public function boot(): void
+    public function register()
     {
         //
+    }
+
+    /**
+     * Boot the authentication services for the application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Auth::extend('custom', function ($app, $name, array $config) {
+            return new RequestGuard(function ($request) {
+                $token = $request->bearerToken();
+
+                if (!$token) {
+                    return null;
+                }
+
+                $authService = new AuthService();
+                $response = $authService->authUser();
+
+                if (!$response || empty($response['data'])) {
+                    return null;
+                }
+
+                $user =  User::where('uuid', $response['data']['uuid'])->first();
+                return $user;
+
+            }, $app['request'], $app['auth']->createUserProvider($config['provider']));
+        });
     }
 }

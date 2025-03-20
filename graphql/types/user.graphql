@@ -7,22 +7,25 @@ type User {
     uuid: String!
 
     "User name"
-    name: String!
+    name: String
 
     "User first name"
-    first_name: String!
+    first_name: String
 
     "User last name"
-    last_name: String!
+    last_name: String
 
     "User username"
-    username: String!
+    username: String
+
+    "User phone number"
+    phone: String
 
     "Email verified at"
-    email_verified_at: DateTime
+    emailVerifiedAt: DateTime
 
     "User country"
-    country: String!
+    country: String
 
     "User email"
     email: String!
@@ -42,9 +45,275 @@ type User {
     "User photo url"
     photo_url: String
 
+    otp: String
+
+    otpExpiredAt: String
+
+    role_id: Int
+
+    ssoId: String
+
     "User created at"
     created_at: DateTime!
 
     "User updated at"
     updated_at: DateTime!
+
+    token: String
+
+    role: Role
+
+    phone_verified_at: DateTime
+}
+
+type Role {
+  id: ID!
+  uuid: String!
+  name: String!
+  editable_name: String!
+  description: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"Profile of a person who uses Greep."
+type UserProfile {
+    "Unique primary key."
+    id: ID!
+
+    "The authenticated user ID."
+    auth_user_id: String
+
+    "The user type, can be 'Business', 'Rider', or 'Customer'."
+    user_type: UserType!
+
+    "The user profile picture URL."
+    profile_picture: String
+
+    "The verification status of the profile."
+    verification_status: VerificationStatus!
+
+    "When the profile was created."
+    created_at: DateTime!
+
+    "When the profile was last updated."
+    updated_at: DateTime!
+
+    "Profile details based on the user type."
+    profileData: ProfileData!
+}
+
+# Business profile details.
+type Business {
+    "Business registration number."
+    registration_number: String!
+
+    "Business logo URL."
+    logo: String
+
+    "Business location."
+    location: String!
+
+    "Business banner URL."
+    banner: String
+
+    "Business description."
+    description: String
+
+    "Business website URL."
+    website: String
+
+    "Business resident permit document URL."
+    resident_permit: String
+
+    "Business passport document URL."
+    passport: String
+}
+
+# Rider profile details.
+type Rider {
+    "Rider license number."
+    license: String!
+
+    "Rider's vehicle type."
+    vehicle_type: String!
+
+    "Vehicle registration number."
+    vehicle_registration_number: String!
+
+    "Vehicle insurance document URL."
+    vehicle_insurance: String!
+
+    "Years of experience."
+    experience_years: Int!
+
+    "Rider availability status."
+    availability_status: Boolean!
+
+    "Notification preferences."
+    notification_preferences: Boolean!
+
+    "Rider's current location."
+    location: String!
+}
+
+# Customer profile details.
+type Customer {
+    "Customer resident permit document URL."
+    resident_permit: String
+
+    "Customer passport document URL."
+    passport: String
+
+    "Customer student ID document URL."
+    student_id: String
+
+    "Notification preferences."
+    notification_preferences: Boolean!
+
+    "Customer's current location."
+    location: String!
+}
+
+# Verification request details.
+type Verification {
+    "Unique primary key."
+    id: ID!
+
+    "The authenticated user ID."
+    auth_user_id: String!
+
+    "The user type associated with the verification."
+    user_type: UserType!
+
+    "Type of document submitted for verification."
+    document_type: DocumentType!
+
+    "URL of the submitted document."
+    document_url: String!
+
+    "Current status of the verification request."
+    status: VerificationStatus!
+
+    "Additional verification data if needed."
+    verification_data: JSON
+
+    "When the verification request was created."
+    created_at: DateTime!
+
+    "When the verification request was last updated."
+    updated_at: DateTime!
+}
+
+# Enums
+enum UserType {
+    Business
+    Rider
+    Customer
+}
+
+enum DocumentType {
+    International_Passport
+    Resident_Permit
+    License
+    Student_ID
+}
+
+enum VerificationStatus {
+    Pending
+    Approved
+    Rejected
+}
+
+input UserProfileInput {
+    auth_user_id: String
+    user_type: UserType!
+    profile_picture: String!
+    business: BusinessInput
+    rider: RiderInput
+    customer: CustomerInput
+}
+
+input BusinessInput {
+    registration_number: String!
+    logo: String
+    location: String!
+    banner: String
+    description: String
+    website: String
+    resident_permit: String
+    passport: String
+}
+
+input RiderInput {
+    license: String!
+    vehicle_type: String!
+    vehicle_registration_number: String!
+    vehicle_insurance: String!
+    experience_years: Int!
+    availability_status: Boolean!
+    notification_preferences: Boolean!
+    location: String!
+}
+
+input CustomerInput {
+    resident_permit: String
+    passport: String
+    student_id: String
+    notification_preferences: Boolean!
+    location: String!
+}
+
+type ProfileData {
+    registration_number: String
+    logo: String
+    location: String
+    banner: String
+    description: String
+    website: String
+    resident_permit: String
+    passport: String
+}
+
+input VerificationInput {
+    auth_user_id: String!
+    user_type: UserType!
+    document_type: DocumentType!
+    document_url: String!
+    verification_data: String!
+}
+
+type DeleteResponse {
+    success: Boolean!
+    message: String!
+}
+
+type Verification {
+    id: ID!
+    auth_user_id: String!
+    status: String!
+}
+
+type VerificationStatusResponse {
+    success: Boolean!
+    message: String!
+    status: String!
+}
+
+
+union UserProfileDetails = Business | Rider | Customer
+
+"Composite type for authenticated user profile data."
+type UserProfileData {
+  user: User!
+  userProfile: UserProfile!
+  profileData: UserProfileDetails
+}
+
+input PermissionInput {
+  key: String!
+  name: String!
+  read: Boolean!
+  write: Boolean!
+  delete: Boolean!
 }

@@ -2,7 +2,7 @@
 
 namespace App\GraphQL\Queries;
 
-use App\Models\User;
+use App\Models\User\User;
 use Illuminate\Support\Facades\Auth;
 
 final class AuthQuery

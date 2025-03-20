@@ -1,0 +1,25 @@
+type AuthResponse {
+    token: String!
+    user: User!
+}
+
+type UserResponse {
+    success: Boolean!
+    message: String!
+    data: User!
+}
+
+type DefaultResponse {
+  success: Boolean!
+  message: String
+}
+
+type RoleResponse {
+  success: Boolean!
+  role: Role
+  message: String
+}
+
+type PermissionResponse {
+  can: Boolean!
+}

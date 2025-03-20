@@ -10,7 +10,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "mll-lab/laravel-graphiql": "^3.2",
+        "mll-lab/laravel-graphiql": "^3.3",
         "nuwave/lighthouse": "^6.50"
     },
     "require-dev": {

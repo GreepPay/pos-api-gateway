@@ -1,18 +1,86 @@
 # Auth Queries
-extend type Query {
-    "Get the authenticated user"
-    AuthUser: User @field(resolver: "AuthQuery@authUser")
+extend type Query @guard {
+  "Get the authenticated user"
+  AuthUser: User @field(resolver: "AuthQuery@authUser")
 
-    "Get a single user"
-    SingleUser(username: String! @eq): User @first
+  "Get a single user by username"
+  SingleUser(username: String! @eq): User @first
 }
 
-
-# Auth mutations
+# Public Mutations (no authentication required)
 extend type Mutation {
+  "Sign in user"
+  SignIn(
+    password: String!
+    username: String! @trim
+  ): UserResponse! @field(resolver: "AuthMutation@signIn")
 
+  "Sign up user"
+  SignUp(
+    firstName: String!
+    lastName: String!
+    email: String! @trim
+    phoneNumber: String!
+    password: String!
+    role: String!
+    ssoId: String
+    otp: String
+    isSso: Boolean!
+    ignoreError: Boolean!
+  ): UserResponse! @field(resolver: "AuthMutation@signUp")
+
+  "Reset OTP for user verification"
+  ResetOtp(
+    email: String!
+  ): DefaultResponse! @field(resolver: "AuthMutation@resetOtp")
+
+  "Verify OTP provided by the user"
+  VerifyOtp(
+    otp: String!
+    userUuid: String
+    email: String
+    phone: String
+  ): DefaultResponse! @field(resolver: "AuthMutation@verifyOtp")
 }
 
+# Authenticated Mutations (require authentication)
 extend type Mutation @guard {
+  "Update user password"
+  UpdatePassword(
+    currentPassword: String!
+    newPassword: String!
+  ): DefaultResponse! @field(resolver: "AuthMutation@updatePassword")
 
+  "Update user profile"
+  UpdateProfile(
+    userUuid: String!
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    email: String
+  ): UserResponse! @field(resolver: "AuthMutation@updateProfile")
+
+  "Logout the currently authenticated user"
+  Logout: DefaultResponse! @field(resolver: "AuthMutation@logout")
+
+  "Delete a user by id"
+  DeleteUser(
+    id: String!
+  ): DefaultResponse! @field(resolver: "AuthMutation@deleteUser")
+
+  "Create a new role"
+  CreateRole(
+    name: String!
+    editable_name: String!
+    role_uuid: String
+  ): RoleResponse! @field(resolver: "AuthMutation@createRole")
+
+  "Update permissions for a role"
+  UpdatePermissions(
+    role_uuid: String!
+    permissions: [PermissionInput!]!
+  ): DefaultResponse! @field(resolver: "AuthMutation@updatePermissions")
+
+  "Check if the authenticated user has a specific permission"
+  UserCan(permission_name: String!): PermissionResponse! @field(resolver: "AuthMutation@userCan")
 }

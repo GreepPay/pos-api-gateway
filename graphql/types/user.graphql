@@ -7,25 +7,25 @@ type User {
     uuid: String!
 
     "User name"
-    name: String!
+    name: String
 
     "User first name"
-    firstName: String!
+    first_name: String
 
     "User last name"
-    lastName: String!
+    last_name: String
 
     "User username"
-    username: String!
+    username: String
 
     "User phone number"
-    phoneNumber: String!
+    phone: String
 
     "Email verified at"
     emailVerifiedAt: DateTime
 
     "User country"
-    country: String!
+    country: String
 
     "User email"
     email: String!
@@ -49,7 +49,7 @@ type User {
 
     otpExpiredAt: String
 
-    roleId: String
+    role_id: Int
 
     ssoId: String
 
@@ -60,6 +60,20 @@ type User {
     updated_at: DateTime!
 
     token: String
+
+    role: Role
+
+    phone_verified_at: DateTime
+}
+
+type Role {
+  id: ID!
+  uuid: String!
+  name: String!
+  editable_name: String!
+  description: String
+  created_at: DateTime!
+  updated_at: DateTime!
 }
 
 "Profile of a person who uses Greep."
@@ -68,7 +82,7 @@ type UserProfile {
     id: ID!
 
     "The authenticated user ID."
-    auth_user_id: String!
+    auth_user_id: String
 
     "The user type, can be 'Business', 'Rider', or 'Customer'."
     user_type: UserType!
@@ -212,9 +226,9 @@ enum VerificationStatus {
 }
 
 input UserProfileInput {
-    auth_user_id: String!
+    auth_user_id: String
     user_type: UserType!
-    profile_picture: String
+    profile_picture: String!
     business: BusinessInput
     rider: RiderInput
     customer: CustomerInput
@@ -284,4 +298,22 @@ type VerificationStatusResponse {
     success: Boolean!
     message: String!
     status: String!
+}
+
+
+union UserProfileDetails = Business | Rider | Customer
+
+"Composite type for authenticated user profile data."
+type UserProfileData {
+  user: User!
+  userProfile: UserProfile!
+  profileData: UserProfileDetails
+}
+
+input PermissionInput {
+  key: String!
+  name: String!
+  read: Boolean!
+  write: Boolean!
+  delete: Boolean!
 }

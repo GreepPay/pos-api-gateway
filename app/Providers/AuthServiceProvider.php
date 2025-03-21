@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
-use App\Models\Auth\Role;
+use App\Models\User\User;
 use App\Services\AuthService;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\RequestGuard;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,21 +27,25 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Here you may define how you wish users to be authenticated for your Lumen
-        // application. The callback which receives the incoming request instance
-        // should return either a User instance or null. You're free to obtain
-        // the User instance via an API token or any other method necessary.
+        Auth::extend('custom', function ($app, $name, array $config) {
+            return new RequestGuard(function ($request) {
+                $token = $request->bearerToken();
 
-        $this->app["auth"]->viaRequest("api", function ($request) {
-            try {
+                if (!$token) {
+                    return null;
+                }
+
                 $authService = new AuthService();
+                $response = $authService->authUser();
 
-                $user = $authService->authUser();
+                if (!$response || empty($response['data'])) {
+                    return null;
+                }
 
+                $user =  User::where('uuid', $response['data']['uuid'])->first();
                 return $user;
-            } catch (\Throwable $th) {
-                return null;
-            }
+
+            }, $app['request'], $app['auth']->createUserProvider($config['provider']));
         });
     }
 }

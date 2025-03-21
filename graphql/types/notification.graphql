@@ -1,0 +1,109 @@
+
+type Notification {
+    "Unique identifier of the notification"
+    id: ID!
+
+    "Authenticated user ID who owns the notification"
+    auth_user_id: String!
+
+    "Title of the notification"
+    title: String!
+
+    "Message content of the notification"
+    message: String!
+
+    "Notification read status"
+    is_read: Boolean!
+
+    "Timestamp when notification was created"
+    created_at: DateTime!
+
+    "Timestamp when notification was last updated"
+    updated_at: DateTime!
+}
+
+# Input Types
+
+input DeviceTokenInput {
+    auth_user_id: String!
+    device_token: String!
+    device_type: String!
+}
+
+input DeviceTokenUpdateInput {
+    auth_user_id: String!
+    device_token: String!
+    status: String!
+}
+
+input DeviceTokenDeleteInput {
+    auth_user_id: String!
+    device_token: String!
+}
+
+input NotificationInput {
+    auth_user_id: String!
+    template_id: ID!
+    variables: String!
+}
+
+input NotificationDeleteInput {
+    id: ID!
+    auth_user_id: String!
+}
+
+input NotificationStatusInput {
+    id: ID!
+    auth_user_id: String!
+    is_read: Boolean!
+}
+
+input BroadcastNotificationInput {
+    template_id: ID!
+    user_ids: [String!]!
+    variables: String!
+}
+
+input NotificationTemplateInput {
+    name: String!
+    title: String!
+    message: String!
+}
+
+input NotificationTemplateUpdateInput {
+    id: ID!
+    name: String
+    title: String
+    message: String
+}
+
+input NotificationTemplateDeleteInput {
+    id: ID!
+}
+
+# Response Types
+
+type DeviceTokenResponse {
+    success: Boolean!
+    message: String!
+}
+
+type NotificationResponse {
+    success: Boolean!
+    notification: Notification
+}
+
+type BroadcastResponse {
+    success: Boolean!
+    sent_count: Int!
+}
+
+type NotificationTemplateResponse {
+    success: Boolean!
+    template_id: ID!
+}
+
+type DeleteResponse {
+    success: Boolean!
+    message: String!
+}

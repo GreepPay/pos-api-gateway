@@ -185,7 +185,7 @@ return [
     */
 
     'namespaces' => [
-        'models' => ['App', 'App\\Models', 'App\\Models\\User', 'App\\Models\\Notification',],
+        'models' => ['App', 'App\\Models', 'App\\Models\\User', 'App\\Models\\Notification', 'App\\Models\\Wallet',],
         'queries' => 'App\\GraphQL\\Queries',
         'mutations' => 'App\\GraphQL\\Mutations',
         'subscriptions' => 'App\\GraphQL\\Subscriptions',

@@ -25,9 +25,9 @@ final class UserMutation
 
         $input = $args["input"];
         $user = Auth::user();
-        
+
         $profileData = [
-            "auth_user_id" => $user->uuid,
+            "auth_user_id" => $user->id,
             "user_type" => $input["user_type"],
             "profile_picture" => $input["profile_picture"] ?? null,
             "profileData" => []

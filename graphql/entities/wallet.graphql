@@ -1,43 +1,8 @@
 extend type Query @guard {
   "Get wallet balance and details for the authenticated user"
   WalletBalance: WalletResponse! @field(resolver: "WalletQuery@walletBalance")
+  
+
+  GetSingleTransaction(uuid: String!): Transaction @find(model: "Transaction", key: "uuid")
 }
 
-# Wallet Mutations (Authenticated)
-extend type Mutation @guard {
-  "Create a new wallet"
-  CreateWallet(input: CreateWalletInput!): WalletResponse! @field(resolver: "WalletMutation@createWallet")
-
-  "Update wallet balance"
-  UpdateWalletBalance(id: String!, input: WalletBalanceInput!): WalletResponse! @field(resolver: "WalletMutation@updateWalletBalance")
-
-  "Soft delete a wallet"
-  SoftDeleteWallet(id: String!): DefaultResponse! @field(resolver: "WalletMutation@softDeleteWallet")
-
-  "Create a new point transaction"
-  CreatePointTransaction(input: PointTransactionInput!): PointTransactionResponse! @field(resolver: "WalletMutation@createPointTransaction")
-
-  "Update point transaction status"
-  UpdatePointTransactionStatus(id: String!, status: String!): PointTransactionResponse! @field(resolver: "WalletMutation@updatePointTransactionStatus")
-
-  "Soft delete point transaction"
-  SoftDeletePointTransaction(id: String!): DefaultResponse! @field(resolver: "WalletMutation@softDeletePointTransaction")
-
-  "Create a new transaction"
-  CreateTransaction(input: TransactionInput!): TransactionResponse! @field(resolver: "WalletMutation@createTransaction")
-
-  "Update transaction status"
-  UpdateTransactionStatus(id: String!, status: String!): TransactionResponse! @field(resolver: "WalletMutation@updateTransactionStatus")
-
-  "Soft delete transaction"
-  SoftDeleteTransaction(id: String!): DefaultResponse! @field(resolver: "WalletMutation@softDeleteTransaction")
-
-  "Create a new user bank"
-  CreateUserBank(input: UserBankInput!): UserBankResponse! @field(resolver: "WalletMutation@createUserBank")
-
-  "Update user bank"
-  UpdateUserBank(id: String!, input: UserBankInput!): UserBankResponse! @field(resolver: "WalletMutation@updateUserBank")
-
-  "Soft delete user bank"
-  SoftDeleteUserBank(id: String!): DefaultResponse! @field(resolver: "WalletMutation@softDeleteUserBank")
-}

@@ -42,7 +42,7 @@ class AuthServiceProvider extends ServiceProvider
                     return null;
                 }
 
-                $user =  User::where('uuid', $response['data']['uuid'])->first();
+                $user =  User::where('id', $response['data']['id'])->first();
                 return $user;
 
             }, $app['request'], $app['auth']->createUserProvider($config['provider']));

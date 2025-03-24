@@ -1,8 +1,30 @@
 extend type Query @guard {
   "Get wallet balance and details for the authenticated user"
   WalletBalance: WalletResponse! @field(resolver: "WalletQuery@walletBalance")
-  
+
+   GetTransactions(
+    type: TransactionType = BOTH,
+    page: Int = 1,
+    perPage: Int = 20
+  ): TransactionPageResponse! @field(resolver: "WalletQuery@getTransactions")
 
   GetSingleTransaction(uuid: String!): Transaction @find(model: "Transaction", key: "uuid")
+
+  GetSinglePointTransaction(uuid: String!): PointTransaction 
+    @find(model: "PointTransaction", key: "uuid")
+  
+  GetSavedAccounts: [UserBank!]! 
+    @all(model: "UserBank")
+    @whereAuth(relation: "user")
+
+  GetSingleSavedAccount(uuid: String!): UserBank
+    @find(model: "UserBank", key: "uuid")
+  
+  GetNotifications: NotificationPaginator!
+    @paginate(model: "Notification")
+    @whereAuth(relation: "user")
+  
+  GetExchangeRate(from_currency: String!, to_currency: String!): ExchangeRateResponse!
+    @field(resolver: "WalletQuery@getExchangeRate")
 }
 

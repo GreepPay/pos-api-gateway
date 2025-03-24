@@ -40,9 +40,9 @@ final class WalletQuery
     }
 
     /**
-     * Retrieve the transactions(Normal, Points, or both) for the authenticated user.
+     * Get paginated transactions (a mix of normal and point transactions).
      *
-     * @param  mixed  $_
+     * @param  null  $_
      * @param  array  $args
      * @return array
      */
@@ -50,39 +50,39 @@ final class WalletQuery
     {
         $user = Auth::user();
         if (!$user) {
-            return [
-                'success' => false,
-                'transactions' => [],
-                'total' => 0,
-                'page' => $args['page'] ?? 1,
-                'perPage' => $args['perPage'] ?? 20,
-                'message' => 'User is not authenticated.'
-            ];
+            throw new GraphQLException('User is not authenticated.');
         }
 
-        // Get type, page, and perPage values from arguments (default: BOTH)
+        // Set default pagination parameters
+        $page    = isset($args['page']) ? (int)$args['page'] : 1;
+        $perPage = isset($args['perPage']) ? (int)$args['perPage'] : 20;
         $type    = strtoupper($args['type'] ?? 'BOTH'); // NORMAL, POINT, or BOTH
-        $page    = $args['page'] ?? 1;
-        $perPage = $args['perPage'] ?? 20;
 
         if ($type === 'NORMAL') {
             $query = Transaction::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc');
-            $transactions = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+            $transactions = $query->skip(($page - 1) * $perPage)
+                                  ->take($perPage)
+                                  ->get();
             $total = $query->count();
         } elseif ($type === 'POINT') {
             $query = PointTransaction::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc');
-            $transactions = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+            $transactions = $query->skip(($page - 1) * $perPage)
+                                  ->take($perPage)
+                                  ->get();
             $total = $query->count();
         } else {
+            // For BOTH, get transactions from both models and merge them
             $normalTransactions = Transaction::where('user_id', $user->id)->get();
             $pointTransactions  = PointTransaction::where('user_id', $user->id)->get();
 
+            // Merge and sort by created_at descending
             $combined = $normalTransactions->merge($pointTransactions)
                 ->sortByDesc(function ($item) {
                     return strtotime($item->created_at);
-                });
+                })
+                ->values();
 
             $total = $combined->count();
             $transactions = $combined->slice(($page - 1) * $perPage, $perPage)->values();
@@ -95,6 +95,34 @@ final class WalletQuery
             'page'         => $page,
             'perPage'      => $perPage,
             'message'      => 'Transactions retrieved successfully.'
+        ];
+    }
+
+    /**
+     * Get the current exchange rate from the wallet service.
+     *
+     * @param  null  $_
+     * @param  array  $args  Expected keys: from_currency, to_currency
+     * @return array
+     */
+    public function getExchangeRate($_, array $args)
+    {
+        if (empty($args['from_currency']) || empty($args['to_currency'])) {
+            throw new GraphQLException('Both from_currency and to_currency are required.');
+        }
+        
+        $fromCurrency = $args['from_currency'];
+        $toCurrency   = $args['to_currency'];
+        
+        $walletService = new WalletService();
+        $result = $walletService->getExchangeRate($fromCurrency, $toCurrency);
+        
+        return [
+            'success'       => true,
+            'rate'          => $result['rate'] ?? null,
+            'from_currency' => $fromCurrency,
+            'to_currency'   => $toCurrency,
+            'message'       => 'Exchange rate retrieved successfully.',
         ];
     }
 }

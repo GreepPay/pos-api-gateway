@@ -176,7 +176,11 @@ enum TransactionType {
     BOTH
 }
 
-type CombinedTransactions {
-    combinedTransactions: [TransactionOrPointTransaction!]!
-        @field(resolver: "WalletQuery@combinedTransactions")
+type ExchangeRateResponse {
+  success: Boolean!
+  rate: Float
+  from_currency: String
+  to_currency: String
+  message: String
 }
+

@@ -23,3 +23,11 @@ type RoleResponse {
 type PermissionResponse {
   can: Boolean!
 }
+
+type AuthUserResponse {
+  success: Boolean!
+  user: User
+  wallet: Wallet
+  profile: UserProfile
+  message: String
+}

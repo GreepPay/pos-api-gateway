@@ -1,0 +1,186 @@
+input CreateWalletInput {
+    uuid: String
+    user_id: Int
+    total_balance: String!
+    point_balance: String!
+    credited_amount: String
+    debited_amount: String
+    locked_balance: String
+    credited_point_amount: String
+    debited_point_amount: String
+    cash_point_balance: String
+    cash_per_point: String
+    wallet_account: String
+    currency: String!
+}
+
+input WalletBalanceInput {
+    total_balance: String
+    point_balance: String
+    credited_amount: String
+    debited_amount: String
+    locked_balance: String
+    credited_point_amount: String
+    debited_point_amount: String
+    cash_point_balance: String
+    cash_per_point: String
+}
+
+input PointTransactionInput {
+    uuid: String
+    dr_or_cr: String
+    wallet_id: Int!
+    user_id: Int!
+    amount: String!
+    point_balance: String!
+    charge_id: String
+    chargeable_type: String
+    description: String
+    status: String
+    reference: String
+    extra_data: String
+    currency: String!
+}
+
+input TransactionInput {
+    uuid: String
+    dr_or_cr: String
+    currency: String!
+    wallet_id: Int!
+    user_id: Int!
+    amount: String!
+    wallet_balance: String!
+    charge_id: String
+    chargeable_type: String
+    description: String
+    status: String
+    charges: String
+    reference: String
+    extra_data: String
+    gateway: String
+}
+
+input UserBankInput {
+    uuid: String
+    user_id: Int!
+    wallet_id: Int!
+    bank_code: String!
+    bank_name: String!
+    account_no: String!
+    currency: String!
+    is_verified: Boolean!
+    meta_data: String
+}
+
+# Response Types
+type WalletResponse {
+    success: Boolean!
+    wallet: Wallet
+    message: String
+}
+
+type Wallet {
+    id: String!
+    user_id: Int!
+    total_balance: String!
+    point_balance: String!
+    credited_amount: String
+    debited_amount: String
+    locked_balance: String
+    credited_point_amount: String
+    debited_point_amount: String
+    cash_point_balance: String
+    cash_per_point: String
+    wallet_account: String
+    currency: String!
+}
+
+type PointTransactionResponse {
+    success: Boolean!
+    pointTransaction: PointTransaction
+    message: String
+}
+
+type PointTransaction {
+    uuid: String
+    dr_or_cr: String
+    wallet_id: Int!
+    user_id: Int!
+    amount: String!
+    point_balance: String!
+    charge_id: String
+    chargeable_type: String
+    description: String
+    status: String
+    reference: String
+    extra_data: String
+    currency: String!
+}
+
+type TransactionResponse {
+    success: Boolean!
+    transaction: Transaction
+    message: String
+}
+
+type Transaction {
+    uuid: String
+    dr_or_cr: String
+    currency: String!
+    wallet_id: Int!
+    user_id: Int!
+    amount: String!
+    wallet_balance: String!
+    charge_id: String
+    chargeable_type: String
+    description: String
+    status: String
+    charges: String
+    reference: String
+    extra_data: String
+    gateway: String
+}
+
+type UserBankResponse {
+    success: Boolean!
+    userBank: UserBank
+    message: String
+}
+
+type UserBank {
+    uuid: String
+    user_id: Int!
+    wallet_id: Int!
+    bank_code: String!
+    bank_name: String!
+    account_no: String!
+    currency: String!
+    is_verified: Boolean!
+    meta_data: String
+}
+
+type TransactionPageResponse {
+    success: Boolean!
+    transactions: [TransactionOrPointTransaction!]!
+    total: Int!
+    page: Int!
+    perPage: Int!
+    message: String
+}
+
+union TransactionOrPointTransaction = Transaction | PointTransaction
+
+enum TransactionType {
+    NORMAL
+    POINT
+    BOTH
+}
+
+type ExchangeRateResponse {
+  success: Boolean!
+  rate: Float
+  from_currency: String
+  to_currency: String
+  message: String
+}
+

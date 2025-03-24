@@ -107,3 +107,19 @@ type DeleteResponse {
     success: Boolean!
     message: String!
 }
+
+type NotificationPaginator {
+  data: [Notification!]!
+  paginatorInfo: PaginatorInfo!
+}
+
+type PaginatorInfo {
+  count: Int!
+  currentPage: Int!
+  firstItem: Int
+  hasMorePages: Boolean!
+  lastItem: Int
+  lastPage: Int!
+  perPage: Int!
+  total: Int!
+}

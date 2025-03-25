@@ -23,7 +23,7 @@ jobs:
           username: "${{ secrets.SSH_USER }}"
           key: "${{ secrets.SSH_PRIVATE_KEY }}"
           script: |
-            cd ~/GreepAppConfigs/greep-pos-api-gateway
+            cd ~/GreepAppConfigs/greep-pos-api
 
             # Collect secrets into EARTHLY_BUILD_ARGS
             export EARTHLY_BUILD_ARGS=""
@@ -46,8 +46,13 @@ jobs:
             export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}DB_HOST=${{ secrets.DB_HOST }},"
             export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}DB_PASSWORD=${{ secrets.DB_PASSWORD }},"
             export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}DB_USER=${{ secrets.DB_USER }},"
-            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}YELLOW_CARD_API_KEY=${{ secrets.YELLOW_CARD_API_KEY_DEV }},"
-            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}YELLOW_CARD_SECRET_KEY=${{ secrets.YELLOW_CARD_SECRET_KEY_DEV }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}AZURE_STORAGE_KEY=${{ secrets.AZURE_STORAGE_KEY }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}AZURE_STORAGE_NAME=${{ secrets.AZURE_STORAGE_NAME }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}AZURE_STORAGE_CONTAINER=${{ secrets.AZURE_STORAGE_CONTAINER }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}AZURE_STORAGE_URL=${{ secrets.AZURE_STORAGE_URL }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }},"
+            export EARTHLY_BUILD_ARGS="${EARTHLY_BUILD_ARGS}APP_KEY=${{ secrets.APP_KEY }},"
+
 
             # Add general variables to EARTHLY_BUILD_ARGS
 
@@ -62,17 +67,17 @@ jobs:
 
 
             # Remove trailing comma (if any)
-            export EARTHLY_BUILD_ARGS=$(echo "$EARTHLY_BUILD_ARGS" | sed 's/,$//')
+            export EARTHLY_BUILD_ARGS=$(echo $EARTHLY_BUILD_ARGS | sed 's/,$//')
 
             # Run earthly with the dynamically created EARTHLY_BUILD_ARGS
-            earthly --no-cache +setup --envs=${{ github.ref_name }} --apptype="php" --service="greep-pos-api-gateway"
+            earthly --no-cache +setup --envs=${{ github.ref_name }} --apptype="php" --service="greep-pos-api"
 
             az acr login --name ${{ secrets.AZURE_REGISTRY_NAME }}
 
-            earthly --push +build --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api-gateway"
+            earthly --push +build --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api"
 
             # Deploy using the EARTHLY_BUILD_ARGS
-            earthly --no-cache +deploy --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api-gateway"
+            earthly --no-cache +deploy --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api"
 
   deploy-production:
     if: github.ref == 'refs/heads/prod'
@@ -90,7 +95,7 @@ jobs:
           username: "${{ secrets.SSH_USER }}"
           key: "${{ secrets.SSH_PRIVATE_KEY }}"
           script: |
-            cd ~/GreepAppConfigs/greep-pos-api-gateway
+            cd ~/GreepAppConfigs/greep-pos-api
 
             # Collect secrets into EARTHLY_BUILD_ARGS
             export EARTHLY_BUILD_ARGS=""
@@ -129,14 +134,14 @@ jobs:
 
 
             # Remove trailing comma (if any)
-            export EARTHLY_BUILD_ARGS=$(echo "$EARTHLY_BUILD_ARGS" | sed 's/,$//')
+            export EARTHLY_BUILD_ARGS=$(echo $EARTHLY_BUILD_ARGS | sed 's/,$//')
 
             # Run earthly with the dynamically created EARTHLY_BUILD_ARGS
-            earthly --no-cache +setup --envs=${{ github.ref_name }} --apptype="php" --service="greep-pos-api-gateway"
+            earthly --no-cache +setup --envs=${{ github.ref_name }} --apptype="php" --service="greep-pos-api"
 
             az acr login --name ${{ secrets.AZURE_REGISTRY_NAME }}
 
-            earthly --push +build --envs=${{ github.ref_name }} --version=${{ github.run_number }} --apptype="php" --service="greep-pos-api-gateway" || exit 1
+            earthly --push +build --envs=${{ github.ref_name }} --version=${{ github.run_number }} --apptype="php" --service="greep-pos-api" || exit 1
 
             # Deploy using the EARTHLY_BUILD_ARGS
-            earthly --no-cache +deploy --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api-gateway"
+            earthly --no-cache +deploy --envs=${{ github.ref_name }} --version=${{ github.run_number }}  --apptype="php" --service="greep-pos-api"

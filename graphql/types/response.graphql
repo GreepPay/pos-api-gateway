@@ -1,6 +1,12 @@
 type AuthResponse {
-    token: String!
-    user: User!
+  success: Boolean!
+  message: String!
+  data: AuthData
+}
+
+type AuthData {
+  token: String
+  user: User
 }
 
 type UserResponse {

@@ -1,4 +1,53 @@
 extend type Query @guard {
-  "Get the authenticated user data with wallet and profile info"
-  GetAuthUser: AuthUserResponse! @field(resolver: "AuthQuery@getAuthUser")
+    "Get the authenticated user data with wallet and profile info"
+    GetAuthUser: AuthUserResponse! @field(resolver: "AuthQuery@getAuthUser")
+}
+
+extend type Mutation {
+    SignUp(
+        firstName: String!
+        lastName: String!
+        email: String!
+        password: String!
+        business_name: String!
+        state: String!
+        country: String!
+        documents: [Upload!]!
+        default_currency: String!
+        ssoId: String
+        otp: String
+        isSso: Boolean = false
+        ignoreError: Boolean = false
+    ): UserResponse! @field(resolver: "AuthMutation@signUp")
+
+    ResetOtp(email: String!): DefaultResponse!
+        @field(resolver: "AuthMutation@resetOtp")
+
+    SignIn(username: String!, password: String!): AuthResponse!
+        @field(resolver: "AuthMutation@signIn")
+
+    VerifyOtp(otp: String!, userUuid: String, email: String): DefaultResponse!
+        @field(resolver: "AuthMutation@verifyOtp")
+}
+
+extend type Mutation @guard {
+    "Update user profile (all fields optional)"
+    UpdateProfile(
+        first_name: String
+        last_name: String
+        email: String
+        password: String
+        profile_photo: Upload
+        business_name: String
+        state: String
+        country: String
+        documents: [Upload!]
+        default_currency: String
+    ): AuthUserResponse! @field(resolver: "AuthMutation@updateProfile")
+
+    "Update user password"
+    UpdateUserPassword(
+        old_password: String!
+        new_password: String!
+    ): DefaultResponse! @field(resolver: "AuthMutation@updatePassword")
 }

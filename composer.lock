@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9a0783bdf2fa6e663dfd1ed9354d5b6",
+    "content-hash": "ca9417651f317981fa1d70bd9dd4582f",
     "packages": [
         {
             "name": "azure-oss/storage",
@@ -2379,6 +2379,55 @@
                 }
             ],
             "time": "2024-09-21T08:32:55+00:00"
+        },
+        {
+            "name": "michaelachrisco/readonly",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/michaelachrisco/ReadOnlyTraitLaravel.git",
+                "reference": "48490a8b4ae064735ec45696c45cfd6bf8537eca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/michaelachrisco/ReadOnlyTraitLaravel/zipball/48490a8b4ae064735ec45696c45cfd6bf8537eca",
+                "reference": "48490a8b4ae064735ec45696c45cfd6bf8537eca",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "illuminate/database": "=11.1.0",
+                "kahlan/kahlan": "^5.2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MichaelAChrisco\\ReadOnly\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Chrisco",
+                    "email": "michaelachrisco@gmail.com"
+                }
+            ],
+            "description": "Readonly Models for Laravel 5+",
+            "keywords": [
+                "Read-Only",
+                "eloquent",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/michaelachrisco/ReadOnlyTraitLaravel/issues",
+                "source": "https://github.com/michaelachrisco/ReadOnlyTraitLaravel/tree/v1.0.0"
+            },
+            "time": "2024-06-18T16:47:23+00:00"
         },
         {
             "name": "mll-lab/graphql-php-scalars",

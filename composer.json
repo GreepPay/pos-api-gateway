@@ -12,6 +12,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "michaelachrisco/readonly": "^1.0",
         "mll-lab/graphql-php-scalars": "^6.4",
         "mll-lab/laravel-graphiql": "^3.3",
         "nuwave/lighthouse": "^6.50"

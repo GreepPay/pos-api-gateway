@@ -4,12 +4,12 @@ namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// use App\Traits\ReadOnlyTrait;
+use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 class UserProfile extends Model
 {
     use HasFactory;
-    // use ReadOnlyTrait;
+    use ReadOnlyTrait;
 
     protected $connection = 'greep-user';
 

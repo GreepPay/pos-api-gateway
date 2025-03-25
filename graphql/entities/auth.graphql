@@ -28,6 +28,13 @@ extend type Mutation {
 
     VerifyOtp(otp: String!, userUuid: String, email: String): DefaultResponse!
         @field(resolver: "AuthMutation@verifyOtp")
+
+    UpdateUserPassword(
+        old_password: String
+        new_password: String!
+        otp: String
+        userUuid: String
+    ): DefaultResponse! @field(resolver: "AuthMutation@updatePassword")
 }
 
 extend type Mutation @guard {
@@ -44,10 +51,4 @@ extend type Mutation @guard {
         documents: [Upload!]
         default_currency: String
     ): AuthUserResponse! @field(resolver: "AuthMutation@updateProfile")
-
-    "Update user password"
-    UpdateUserPassword(
-        old_password: String!
-        new_password: String!
-    ): DefaultResponse! @field(resolver: "AuthMutation@updatePassword")
 }

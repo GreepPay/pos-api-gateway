@@ -5,20 +5,28 @@ namespace App\GraphQL\Mutations;
 use App\Exceptions\GraphQLException;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
+use Storage;
+use Str;
+use Intervention\Image\ImageManagerStatic as Image;
 
 final class AuthMutation
 {
     protected AuthService $authService;
+    protected UserService $userService;
 
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
 
-    // Existing mutations
     public function signIn($_, array $args)
     {
+        if (empty($args["username"]) || empty($args["password"])) {
+            throw new GraphQLException("Username and password are required.");
+        }
+
         $authResponse = $this->authService->loginUser(
             new Request([
                 "username" => $args["username"],
@@ -31,36 +39,134 @@ final class AuthMutation
 
     public function signUp($_, array $args)
     {
+        // List required fields for signup
         $requiredFields = [
             "firstName",
             "lastName",
             "email",
-            "phoneNumber",
             "password",
-            "role",
+            "business_name",
+            "state",
+            "country",
+            "documents",
+            "default_currency",
         ];
+
         foreach ($requiredFields as $field) {
             if (!isset($args[$field])) {
                 throw new GraphQLException("Missing required field: {$field}");
             }
         }
 
+        // Process the array of document uploads directly.
+        // Each element in $args['documents'] is expected to be an instance of UploadedFile.
+        $documentUrls = [];
+        if (is_array($args["documents"])) {
+            foreach ($args["documents"] as $doc) {
+                // Call your uploadFile function with the file upload.
+                $url = $this->uploadFile($doc, false);
+                $documentUrls[] = $url;
+            }
+        } else {
+            throw new GraphQLException(
+                "Invalid 'documents' input. Expected an array of uploads."
+            );
+        }
+
+        // Build payload for user creation
         $payload = [
             "firstName" => $args["firstName"],
             "lastName" => $args["lastName"],
             "email" => $args["email"],
-            "phoneNumber" => $args["phoneNumber"],
             "password" => $args["password"],
-            "role" => $args["role"],
-            "ssoId" => $args["ssoId"] ?? null,
-            "otp" => $args["otp"] ?? null,
-            "isSso" => $args["isSso"] ?? false,
-            "ignoreError" => $args["ignoreError"] ?? false,
+            "state" => $args["state"],
+            "country" => $args["country"],
+            "default_currency" => $args["default_currency"],
+            "role" => "business",
         ];
 
+        // Create the user by calling the signup service.
         $authResponse = $this->authService->addUser(new Request($payload));
 
+        // Extract the created user from the response.
+        if (!isset($authResponse["data"]["user"])) {
+            throw new GraphQLException("User creation failed.");
+        }
+        $user = $authResponse["data"]["user"];
+
+        // Build the profile payload for a Business user.
+        $profileData = [
+            "auth_user_id" => $user->id,
+            "user_type" => "Business",
+            "profile_picture" => null,
+            "profileData" => [
+                "business_name" => $args["business_name"],
+                "documents" => $documentUrls,
+            ],
+        ];
+
+        // Create the business profile
+        $this->userService->createProfile(new Request($profileData));
+
         return $authResponse;
+    }
+
+    public function uploadFile($request, $resizeImg = true)
+    {
+        $allowedMimeTypes = ["image/jpeg", "image/gif", "image/png"];
+        $contentType = $request->file("attachment")->getClientMimeType();
+
+        $photo = null;
+        if (!in_array($contentType, $allowedMimeTypes)) {
+            $photo = Storage::disk("azure")->putFile(
+                "main",
+                $request->file("attachment"),
+                "public"
+            );
+        } else {
+            $data = getimagesize($request->file("attachment"));
+
+            $width = $data[0];
+            $height = $data[1];
+
+            $image = Image::make($request->file("attachment"))->encode(
+                "jpeg",
+                60
+            );
+
+            if ($resizeImg == false) {
+                $image = Image::make($request->file("attachment"))->encode(
+                    "jpeg",
+                    60
+                );
+            }
+
+            $extension = $request
+                ->file("attachment")
+                ->getClientOriginalExtension();
+
+            $extension = $extension ? $extension : "jpg";
+
+            $fileName = Str::random(30) . "." . $extension;
+
+            $image = $image->stream();
+
+            $photo = Storage::disk("azure")->put(
+                "main/" . $fileName,
+                $image->__toString(),
+                "public"
+            );
+
+            return env(
+                "AZURE_STORAGE_URL",
+                "https://shpt.blob.core.windows.net"
+            ) .
+                "/" .
+                "main/" .
+                $fileName;
+        }
+
+        return Storage::disk("azure")->url($photo);
     }
 
     public function resetOtp($_, array $args)
@@ -94,35 +200,93 @@ final class AuthMutation
 
     public function updatePassword($_, array $args)
     {
-        if (!isset($args["currentPassword"]) || !isset($args["newPassword"])) {
+        if (!isset($args["old_password"]) || !isset($args["new_password"])) {
             throw new GraphQLException(
-                "Missing required fields: currentPassword and/or newPassword"
+                "Missing required fields: old_password and/or new_password"
             );
         }
 
         $payload = [
-            "currentPassword" => $args["currentPassword"],
-            "newPassword" => $args["newPassword"],
+            "currentPassword" => $args["old_password"],
+            "newPassword" => $args["new_password"],
         ];
 
         return $this->authService->updatePassword(new Request($payload));
     }
-
     public function updateProfile($_, array $args)
     {
-        if (!isset($args["userUuid"])) {
-            throw new GraphQLException("Missing required field: userUuid");
+        $userPayload = [];
+        if (isset($args["first_name"])) {
+            $userPayload["firstName"] = $args["first_name"];
+        }
+        if (isset($args["last_name"])) {
+            $userPayload["lastName"] = $args["last_name"];
+        }
+        if (isset($args["email"])) {
+            $userPayload["email"] = $args["email"];
+        }
+        if (isset($args["phoneNumber"])) {
+            $userPayload["phoneNumber"] = $args["phoneNumber"];
         }
 
-        $payload = [
-            "userUuid" => $args["userUuid"],
-            "firstName" => $args["firstName"] ?? null,
-            "lastName" => $args["lastName"] ?? null,
-            "phoneNumber" => $args["phoneNumber"] ?? null,
-            "email" => $args["email"] ?? null,
+        if (isset($args["state"])) {
+            $userPayload["state"] = $args["state"];
+        }
+        if (isset($args["country"])) {
+            $userPayload["country"] = $args["country"];
+        }
+        if (isset($args["default_currency"])) {
+            $userPayload["default_currency"] = $args["default_currency"];
+        }
+
+        // Update the user via the auth service.
+        $authResponse = $this->authService->updateProfile(
+            new Request($userPayload)
+        );
+
+        // Expect that the authResponse contains the updated user data.
+        if (!isset($authResponse["data"]["user"])) {
+            throw new GraphQLException("User update failed.");
+        }
+        $user = $authResponse["data"]["user"];
+
+        $profilePayload = [
+            "auth_user_id" => $user->id,
+            "user_type" => "Business",
         ];
 
-        return $this->authService->updateProfile(new Request($payload));
+        $profileData = [];
+
+        if (isset($args["profile_photo"])) {
+            $photoUrl = $this->uploadFile($args["profile_photo"], true);
+            $profilePayload["profile_picture"] = $photoUrl;
+        }
+
+        // Business-specific fields
+        if (isset($args["business_name"])) {
+            $profileData["business_name"] = $args["business_name"];
+        }
+
+        // Process document uploads if provided.
+        if (isset($args["documents"]) && is_array($args["documents"])) {
+            $documentUrls = [];
+            foreach ($args["documents"] as $doc) {
+                // $doc is expected to be an UploadedFile instance.
+                $url = $this->uploadFile($doc, false);
+                $documentUrls[] = $url;
+            }
+            $profileData["documents"] = $documentUrls;
+        }
+
+        if (!empty($profileData)) {
+            $profilePayload["profileData"] = $profileData;
+        }
+
+        $profileResponse = $this->userService->updateProfile(
+            new Request($profilePayload)
+        );
+
+        return $authResponse;
     }
 
     public function logout($_, array $args)

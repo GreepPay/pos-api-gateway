@@ -128,10 +128,10 @@ final class UserMutation
         }
 
         $payload = [
-            'auth_user_id'      => $user->uuid,
-            'user_type'         => $args['user_type'],
-            'document_type'     => $args['document_type'],
-            'document_url'      => $args['document_url'],
+            'auth_user_id' => $user->uuid,
+            'user_type' => $args['user_type'],
+            'document_type' => $args['document_type'],
+            'document_url' => $args['document_url'],
             'verification_data' => $args['verification_data'] ?? null,
         ];
 
@@ -159,8 +159,8 @@ final class UserMutation
 
         $payload = [
             'verificationId' => $args['verificationId'],
-            'status'         => $args['status'],
-            'auth_user_id'   => $user->uuid,
+            'status' => $args['status'],
+            'auth_user_id' => $user->uuid,
         ];
 
         $response = $this->userService->approveVerification(new Request($payload));

@@ -184,3 +184,31 @@ type ExchangeRateResponse {
   message: String
 }
 
+enum SavedAccountType {
+  crypto
+  bank_account
+  mobile_money
+}
+
+input CreateSavedAccountInput {
+  type: SavedAccountType!
+  unique_id: String!
+  metadata: JSON!
+}
+
+type SavedAccount {
+  uuid: String!
+  user_id: Int!
+  type: SavedAccountType!
+  unique_id: String!
+  metadata: JSON
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type SavedAccountResponse {
+  success: Boolean!
+  saved_account: SavedAccount
+  message: String
+}
+

@@ -197,6 +197,7 @@ return [
             "App\\Models\\User",
             "App\\Models\\Auth",
             "App\\Models\\Notification",
+            "App\\Models\\Blockchain",
             "App\\Models\\Wallet",
         ],
         "queries" => "App\\GraphQL\\Queries",

@@ -2,43 +2,70 @@
 
 namespace App\Models\User;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
-// use App\Traits\ReadOnlyTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
+/**
+ * 
+ *
+ * @property string $auth_user_id
+ * @property string|null $profile_picture
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property string|null $user_type
+ * @property string|null $default_currency
+ * @property string $verification_status
+ * @property-read \App\Models\User\Business|null $business
+ * @property-read \App\Models\User\Customer|null $customer
+ * @property-read \App\Models\User\Rider|null $rider
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile query()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereAuthUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereDefaultCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereProfilePicture($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereUserType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserProfile whereVerificationStatus($value)
+ * @mixin \Eloquent
+ */
 class UserProfile extends Model
 {
-    use HasFactory;
-    // use ReadOnlyTrait;
+    use ReadOnlyTrait;
 
-    protected $connection = 'greep-user';
+    protected $connection = "greep-user";
 
-    protected $guarded = [];
+    protected $table = "user_profiles";
 
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'auth_user_id', 'id');
+        return $this->belongsTo(User::class, "auth_user_id", "id");
     }
 
-    public function getUserTypeAttribute()
+    public function getUserTypeAttribute(): string|null
     {
-        return $this->attributes['user_type'] ?? null;
+        return $this->attributes["user_type"] ?? null;
     }
 
-    public function business()
+    public function business(): HasOne
     {
-        return $this->hasOne(Business::class, 'auth_user_id', 'auth_user_id');
+        return $this->hasOne(Business::class, "auth_user_id", "auth_user_id");
     }
 
     // Define the relationship to Rider details
-    public function rider()
+    public function rider(): HasOne
     {
-        return $this->hasOne(Rider::class, 'auth_user_id', 'auth_user_id');
+        return $this->hasOne(Rider::class, "auth_user_id", "auth_user_id");
     }
 
     // Define the relationship to Customer details
-    public function customer()
+    public function customer(): HasOne
     {
-        return $this->hasOne(Customer::class, 'auth_user_id', 'auth_user_id');
+        return $this->hasOne(Customer::class, "auth_user_id", "auth_user_id");
     }
 }

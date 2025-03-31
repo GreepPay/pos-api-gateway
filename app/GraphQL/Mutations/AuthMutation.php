@@ -3,18 +3,18 @@
 namespace App\GraphQL\Mutations;
 
 use App\Exceptions\GraphQLException;
-use App\Models\User;
 use App\Services\AuthService;
 use App\Services\UserService;
+use Auth;
 use Illuminate\Http\Request;
-use Storage;
-use Str;
-use Intervention\Image\ImageManagerStatic as Image;
+use App\Traits\FileUploadTrait;
 
 final class AuthMutation
 {
     protected AuthService $authService;
     protected UserService $userService;
+
+    use FileUploadTrait;
 
     public function __construct(AuthService $authService)
     {
@@ -51,7 +51,6 @@ final class AuthMutation
             "documents",
             "default_currency",
         ];
-
         foreach ($requiredFields as $field) {
             if (!isset($args[$field])) {
                 throw new GraphQLException("Missing required field: {$field}");
@@ -111,64 +110,6 @@ final class AuthMutation
         return $authResponse;
     }
 
-    public function uploadFile($request, $resizeImg = true)
-    {
-        $allowedMimeTypes = ["image/jpeg", "image/gif", "image/png"];
-        $contentType = $request->file("attachment")->getClientMimeType();
-
-        $photo = null;
-        if (!in_array($contentType, $allowedMimeTypes)) {
-            $photo = Storage::disk("azure")->putFile(
-                "main",
-                $request->file("attachment"),
-                "public"
-            );
-        } else {
-            $data = getimagesize($request->file("attachment"));
-
-            $width = $data[0];
-            $height = $data[1];
-
-            $image = Image::make($request->file("attachment"))->encode(
-                "jpeg",
-                60
-            );
-
-            if ($resizeImg == false) {
-                $image = Image::make($request->file("attachment"))->encode(
-                    "jpeg",
-                    60
-                );
-            }
-
-            $extension = $request
-                ->file("attachment")
-                ->getClientOriginalExtension();
-
-            $extension = $extension ? $extension : "jpg";
-
-            $fileName = Str::random(30) . "." . $extension;
-
-            $image = $image->stream();
-
-            $photo = Storage::disk("azure")->put(
-                "main/" . $fileName,
-                $image->__toString(),
-                "public"
-            );
-
-            return env(
-                "AZURE_STORAGE_URL",
-                "https://shpt.blob.core.windows.net"
-            ) .
-                "/" .
-                "main/" .
-                $fileName;
-        }
-
-        return Storage::disk("azure")->url($photo);
-    }
-
     public function resetOtp($_, array $args)
     {
         if (!isset($args["email"])) {
@@ -200,16 +141,55 @@ final class AuthMutation
 
     public function updatePassword($_, array $args)
     {
-        if (!isset($args["old_password"]) || !isset($args["new_password"])) {
-            throw new GraphQLException(
-                "Missing required fields: old_password and/or new_password"
-            );
-        }
+        $authUser = Auth::user();
 
-        $payload = [
-            "currentPassword" => $args["old_password"],
-            "newPassword" => $args["new_password"],
-        ];
+        if ($authUser) {
+            if (
+                !isset($args["old_password"]) ||
+                !isset($args["new_password"])
+            ) {
+                throw new GraphQLException(
+                    "Missing required fields: old_password and/or new_password"
+                );
+            }
+
+            $payload = [
+                "currentPassword" => $args["old_password"],
+                "newPassword" => $args["new_password"],
+            ];
+        } else {
+            if (
+                !isset($args["otp"]) ||
+                !isset($args["userUuid"]) ||
+                !isset($args["new_password"])
+            ) {
+                throw new GraphQLException(
+                    "Missing required fields: otp, userUuid and/or new_password"
+                );
+            }
+
+            $verifyPayload = [
+                "otp" => $args["otp"],
+                "userUuid" => $args["userUuid"],
+            ];
+            $verifyResponse = $this->authService->verifyOtp(
+                new Request($verifyPayload)
+            );
+            if (
+                !isset($verifyResponse["success"]) ||
+                !$verifyResponse["success"]
+            ) {
+                throw new GraphQLException(
+                    "OTP verification failed: " .
+                        ($verifyResponse["message"] ?? "Unknown error")
+                );
+            }
+
+            $payload = [
+                "currentPassword" => null,
+                "newPassword" => $args["new_password"],
+            ];
+        }
 
         return $this->authService->updatePassword(new Request($payload));
     }

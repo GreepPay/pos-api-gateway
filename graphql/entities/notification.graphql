@@ -1,16 +1,16 @@
-# Notification Queries
 extend type Query @guard {
-    "Get a specific notification by ID"
-    notification(id: ID!): Notification @find(model: "Notification", key: "id")
-
-    notifications(first: Int = 10, page: Int = 1): NotificationPaginator!
-        @paginate(model: "Notification")
-        @whereAuth(relation: "user")
+    "Get a paginated list of notifications for the authenticated user"
+    GetNotifications: [Notification!]! @paginate @whereAuth(relation: "user")
 }
 
-# Notification Mutations
 extend type Mutation @guard {
-    "Register a device token"
-    registerDeviceToken(input: DeviceTokenInput!): DeviceTokenResponse!
-        @field(resolver: "NotificationMutation@registerDeviceToken")
+    "Save a push notification token for the authenticated user."
+    SavePushNotificationToken(
+        device_token: String!
+        device_type: String!
+    ): Boolean @field(resolver: "NotificationMutator@savePushNotificationToken")
+
+    "Mark specific notifications as read for the authenticated user."
+    MarkNotificationsAsRead(notification_ids: [Int!]!): Boolean
+        @field(resolver: "NotificationMutator@markNotificationsAsRead")
 }

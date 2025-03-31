@@ -4,8 +4,9 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Str;
+use Spatie\ImageOptimizer\OptimizerChain;
 
 trait FileUploadTrait
 {
@@ -20,42 +21,66 @@ trait FileUploadTrait
      *
      * @throws \InvalidArgumentException if no file is found under 'attachment'
      */
-    public function uploadFile(Request $request, $resizeImg = true)
+    public function uploadFile(Request $request, $resizeImg = true): string
     {
-        if (!$request->hasFile('attachment')) {
-            throw new \InvalidArgumentException("No file found under 'attachment'");
-        }
-
-        $file = $request->file('attachment');
-        $allowedMimeTypes = ['image/jpeg', 'image/gif', 'image/png'];
-        $contentType = $file->getClientMimeType();
+        $allowedMimeTypes = ["image/jpeg", "image/gif", "image/png"];
+        $contentType = $request->file("attachment")->getClientMimeType();
 
         $photo = null;
         if (!in_array($contentType, $allowedMimeTypes)) {
-            // For non-image files, simply upload them as-is.
-            $photo = Storage::disk('azure')->putFile('main', $file, 'public');
+            $path = Storage::disk("azure")->putFile(
+                "main",
+                $request->file("attachment"),
+                "public"
+            );
+            return env(
+                "AZURE_STORAGE_URL",
+                "https://greep.blob.core.windows.net"
+            ) .
+                "/" .
+                $path;
         } else {
-            // For images, process and encode them
-            $data = getimagesize($file);
-            $width = $data[0];
-            $height = $data[1];
+            $file = $request->file("attachment");
+            $extension = $file->getClientOriginalExtension() ?: "jpg";
+            $fileName = Str::random(30) . "." . $extension;
 
-            // Process image: encode as jpeg at 60% quality
-            $image = Image::make($file)->encode('jpeg', 60);
-            if ($resizeImg === false) {
-                $image = Image::make($file)->encode('jpeg', 60);
+            // Create a temporary file to store the optimized image
+            $tempPath = storage_path("app/temp_img/" . $fileName);
+
+            // Save the image to the temp folder
+            $file->move(storage_path("app/temp_img/"), $fileName);
+
+            // Optimize the image
+            $optimizer = app(OptimizerChain::class);
+
+            $optimizer->optimize($tempPath);
+
+            // If resizing is enabled, resize the optimized image
+            if ($resizeImg) {
+                $image = Image::make($tempPath)->encode("jpeg", 60);
+                $image = $image->stream();
+                $imageContent = $image->__toString();
+            } else {
+                $imageContent = file_get_contents($tempPath);
             }
 
-            $extension = $file->getClientOriginalExtension() ?: 'jpg';
-            $fileName = Str::random(30) . '.' . $extension;
-            $imageStream = $image->stream();
+            // Upload the optimized (and possibly resized) image to Azure
+            Storage::disk("azure")->put(
+                "main/" . $fileName,
+                $imageContent,
+                "public"
+            );
 
-            // Upload the processed image to Azure
-            $photo = Storage::disk('azure')->put('main/' . $fileName, $imageStream->__toString(), 'public');
+            // Delete the temporary file
+            unlink($tempPath);
 
-            return env('AZURE_STORAGE_URL', "https://shpt.blob.core.windows.net") . '/main/' . $fileName;
+            return env(
+                "AZURE_STORAGE_URL",
+                "https://greep.blob.core.windows.net"
+            ) .
+                "/" .
+                "main/" .
+                $fileName;
         }
-
-        return Storage::disk('azure')->url($photo);
     }
 }

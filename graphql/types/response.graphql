@@ -1,39 +1,24 @@
 type AuthResponse {
-  success: Boolean!
-  message: String!
-  data: AuthData
+    token: String!
+    user: User!
 }
 
-type AuthData {
-  token: String
-  user: User
+type SupportedCurrency {
+    country: String!
+    code: String!
+    currency: String!
+    supported_methods: [String!]!
 }
 
-type UserResponse {
-    success: Boolean!
-    message: String!
-    data: User!
+type ExchangeRate {
+    rates: [ExchangeRateItem!]!
 }
 
-type DefaultResponse {
-  success: Boolean!
-  message: String
-}
-
-type RoleResponse {
-  success: Boolean!
-  role: Role
-  message: String
-}
-
-type PermissionResponse {
-  can: Boolean!
-}
-
-type AuthUserResponse {
-  success: Boolean!
-  user: User
-  wallet: Wallet
-  profile: UserProfile
-  message: String
+type ExchangeRateItem {
+    buy: Float!
+    sell: Float!
+    locale: String!
+    rateId: String!
+    code: String!
+    updatedAt: String!
 }

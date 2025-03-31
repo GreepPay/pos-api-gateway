@@ -1,54 +1,54 @@
-extend type Query @guard {
-    "Get the authenticated user data with wallet and profile info"
-    GetAuthUser: AuthUserResponse! @field(resolver: "AuthQuery@getAuthUser")
+# Auth Queries
+extend type Query {
+    "Get the authenticated user"
+    GetAuthUser: User @field(resolver: "AuthQuery@getAuthUser")
 }
 
+# Auth mutations
 extend type Mutation {
+    "Sign up a new user"
     SignUp(
-        firstName: String!
-        lastName: String!
+        first_name: String!
+        last_name: String!
         email: String!
         password: String!
-        business_name: String!
         state: String!
         country: String!
-        documents: [Upload!]!
         default_currency: String!
-        ssoId: String
-        otp: String
-        isSso: Boolean = false
-        ignoreError: Boolean = false
-    ): UserResponse! @field(resolver: "AuthMutation@signUp")
+        business_name: String!
+        documents: [Upload!]!
+    ): User! @field(resolver: "AuthMutator@signUp")
 
-    ResetOtp(email: String!): DefaultResponse!
-        @field(resolver: "AuthMutation@resetOtp")
+    "Sign in a user"
+    SignIn(email: String!, password: String!): AuthResponse!
+        @field(resolver: "AuthMutator@signIn")
 
-    SignIn(username: String!, password: String!): AuthResponse!
-        @field(resolver: "AuthMutation@signIn")
+    "Resend email OTP"
+    ResendEmailOTP(email: String!): Boolean!
+        @field(resolver: "AuthMutator@resendEmailOTP")
 
-    VerifyOtp(otp: String!, userUuid: String, email: String): DefaultResponse!
-        @field(resolver: "AuthMutation@verifyOtp")
+    "send rest password OTP"
+    SendResetPasswordOTP(email: String!): Boolean!
+        @field(resolver: "AuthMutator@sendResetPasswordOTP")
 
-    UpdateUserPassword(
-        old_password: String
+    "Resend email OTP"
+    ResendEmailOTP(email: String!): Boolean!
+        @field(resolver: "AuthMutator@resendEmailOTP")
+
+    "Reset password for user"
+    ResetPassword(
+        user_uuid: String!
+        otp_code: String!
         new_password: String!
-        otp: String
-        userUuid: String
-    ): DefaultResponse! @field(resolver: "AuthMutation@updatePassword")
+    ): Boolean! @field(resolver: "AuthMutator@resetPassword")
+
+    "Verify user OTP"
+    VerifyUserOTP(user_uuid: String!, otp: String!): Boolean!
+        @field(resolver: "AuthMutator@verifyUserOTP")
 }
 
 extend type Mutation @guard {
-    "Update user profile (all fields optional)"
-    UpdateProfile(
-        first_name: String
-        last_name: String
-        email: String
-        password: String
-        profile_photo: Upload
-        business_name: String
-        state: String
-        country: String
-        documents: [Upload!]
-        default_currency: String
-    ): AuthUserResponse! @field(resolver: "AuthMutation@updateProfile")
+    "Update user password"
+    UpdatePassword(current_password: String!, new_password: String!): Boolean!
+        @field(resolver: "AuthMutator@updatePassword")
 }

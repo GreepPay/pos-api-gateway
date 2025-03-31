@@ -1,214 +1,179 @@
-input CreateWalletInput {
-    uuid: String
-    user_id: Int
-    total_balance: String!
-    point_balance: String!
-    credited_amount: String
-    debited_amount: String
-    locked_balance: String
-    credited_point_amount: String
-    debited_point_amount: String
-    cash_point_balance: String
-    cash_per_point: String
-    wallet_account: String
-    currency: String!
-}
-
-input WalletBalanceInput {
-    total_balance: String
-    point_balance: String
-    credited_amount: String
-    debited_amount: String
-    locked_balance: String
-    credited_point_amount: String
-    debited_point_amount: String
-    cash_point_balance: String
-    cash_per_point: String
-}
-
-input PointTransactionInput {
-    uuid: String
-    dr_or_cr: String
-    wallet_id: Int!
-    user_id: Int!
-    amount: String!
-    point_balance: String!
-    charge_id: String
-    chargeable_type: String
-    description: String
-    status: String
-    reference: String
-    extra_data: String
-    currency: String!
-}
-
-input TransactionInput {
-    uuid: String
-    dr_or_cr: String
-    currency: String!
-    wallet_id: Int!
-    user_id: Int!
-    amount: String!
-    wallet_balance: String!
-    charge_id: String
-    chargeable_type: String
-    description: String
-    status: String
-    charges: String
-    reference: String
-    extra_data: String
-    gateway: String
-}
-
-input UserBankInput {
-    uuid: String
-    user_id: Int!
-    wallet_id: Int!
-    bank_code: String!
-    bank_name: String!
-    account_no: String!
-    currency: String!
-    is_verified: Boolean!
-    meta_data: String
-}
-
-# Response Types
-type WalletResponse {
-    success: Boolean!
-    wallet: Wallet
-    message: String
-}
-
-type Wallet {
-    id: String!
-    user_id: Int!
-    total_balance: String!
-    point_balance: String!
-    credited_amount: String
-    debited_amount: String
-    locked_balance: String
-    credited_point_amount: String
-    debited_point_amount: String
-    cash_point_balance: String
-    cash_per_point: String
-    wallet_account: String
-    currency: String!
-}
-
-type PointTransactionResponse {
-    success: Boolean!
-    pointTransaction: PointTransaction
-    message: String
-}
-
-type PointTransaction {
-    uuid: String
-    dr_or_cr: String
-    wallet_id: Int!
-    user_id: Int!
-    amount: String!
-    point_balance: String!
-    charge_id: String
-    chargeable_type: String
-    description: String
-    status: String
-    reference: String
-    extra_data: String
-    currency: String!
-}
-
-type TransactionResponse {
-    success: Boolean!
-    transaction: Transaction
-    message: String
-}
-
-type Transaction {
-    uuid: String
-    dr_or_cr: String
-    currency: String!
-    wallet_id: Int!
-    user_id: Int!
-    amount: String!
-    wallet_balance: String!
-    charge_id: String
-    chargeable_type: String
-    description: String
-    status: String
-    charges: String
-    reference: String
-    extra_data: String
-    gateway: String
-}
-
-type UserBankResponse {
-    success: Boolean!
-    userBank: UserBank
-    message: String
-}
-
+"A single beneficiary"
 type UserBank {
-    uuid: String
-    user_id: Int!
+    "Unique UUID"
+    uuid: String!
+
+    "Wallet ID"
     wallet_id: Int!
+
+    "Bank Code"
     bank_code: String!
+
+    "Bank Name"
     bank_name: String!
+
+    "Account Number"
     account_no: String!
+
+    "Currency (default: 'USDC')"
     currency: String!
+
+    "Is Verified"
     is_verified: Boolean!
+
+    "State of the beneficiary (active or archived)"
+    state: String!
+
+    "Metadata associated with the beneficiary"
     meta_data: String
 }
 
-type TransactionPageResponse {
-    success: Boolean!
-    transactions: [TransactionOrPointTransaction!]!
-    total: Int!
-    page: Int!
-    perPage: Int!
-    message: String
+"A single point transaction"
+type PointTransaction {
+    "Unique UUID"
+    uuid: String!
+
+    "Credit or Debit: 'credit' or 'debit'"
+    dr_or_cr: String!
+
+    "Wallet ID"
+    wallet_id: Int!
+
+    "User ID"
+    user_id: Int!
+
+    "Transaction Amount"
+    amount: Float!
+
+    "Point Balance"
+    point_balance: Float!
+
+    "Charge ID"
+    charge_id: String!
+
+    "State of the point transaction ('active' or 'archived')"
+    state: String!
+
+    "Chargeable Type"
+    chargeable_type: String!
+
+    "Point Transaction Description"
+    description: String!
+
+    "Point Transaction Status ('default', 'pending', 'successful')"
+    status: String!
+
+    "Point Transaction Reference"
+    reference: String!
+
+    "Extra Data (JSON string)"
+    extra_data: String
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "PointTransaction Created At"
+    created_at: DateTime!
+
+    "Point Transaction Updated At"
+    updated_at: DateTime!
 }
 
-union TransactionOrPointTransaction = Transaction | PointTransaction
+"A single transaction"
+type Transaction {
+    "Unique UUID"
+    uuid: String!
 
-enum TransactionType {
-    NORMAL
-    POINT
-    BOTH
+    "Credit or Debit: 'credit' or 'debit'"
+    dr_or_cr: String!
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "Wallet ID"
+    wallet_id: Int!
+
+    "User ID"
+    user_id: Int!
+
+    "Transaction Amount"
+    amount: Float!
+
+    "Wallet Balance"
+    wallet_balance: Float!
+
+    "Charge ID"
+    charge_id: String!
+
+    "Chargeable Type"
+    chargeable_type: String!
+
+    "Transaction Description"
+    description: String!
+
+    "Transaction Status ('default', 'pending', 'successful')"
+    status: String!
+
+    "Charges"
+    charges: Float!
+
+    "Transaction Reference"
+    reference: String!
+
+    "State of the transaction ('active' or 'archived')"
+    state: String!
+
+    "Gateway (default: 'Greep-wallet')"
+    gateway: String!
+
+    "Transaction Created At"
+    created_at: DateTime!
+
+    "Transaction Updated At"
+    updated_at: DateTime!
 }
 
-type ExchangeRateResponse {
-  success: Boolean!
-  rate: Float
-  from_currency: String
-  to_currency: String
-  message: String
-}
+"A single wallet"
+type Wallet {
+    "Unique UUID"
+    uuid: String!
 
-enum SavedAccountType {
-  crypto
-  bank_account
-  mobile_money
-}
+    "Total Balance"
+    total_balance: Float!
 
-input CreateSavedAccountInput {
-  type: SavedAccountType!
-  unique_id: String!
-  metadata: JSON!
-}
+    "Point Balance"
+    point_balance: Float!
 
-type SavedAccount {
-  uuid: String!
-  user_id: Int!
-  type: SavedAccountType!
-  unique_id: String!
-  metadata: JSON
-  created_at: DateTime
-  updated_at: DateTime
-}
+    "Credited Amount"
+    credited_amount: Float!
 
-type SavedAccountResponse {
-  success: Boolean!
-  saved_account: SavedAccount
-  message: String
-}
+    "Debited Amount"
+    debited_amount: Float!
 
+    "Locked Balance"
+    locked_balance: Float!
+
+    "Credited Point Amount"
+    credited_point_amount: Float!
+
+    "Wallet State ('active' or 'archived')"
+    state: String!
+
+    "Debited Point Amount"
+    debited_point_amount: Float!
+
+    "Cash Point Balance"
+    cash_point_balance: Float!
+
+    "Cash Per Point"
+    cash_per_point: Float!
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "Wallet Created At"
+    created_at: DateTime!
+
+    "Wallet Updated At"
+    updated_at: DateTime!
+}

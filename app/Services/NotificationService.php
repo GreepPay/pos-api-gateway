@@ -9,14 +9,23 @@ class NotificationService
     protected $serviceUrl;
     protected $notificationNetwork;
 
+    /**
+     * Constructor for the NotificationService class.
+     *
+     * @param bool $useCache Whether to use caching.
+     * @param array $headers The headers to use.
+     * @param string $apiType The type of API to use.
+     */
     public function __construct(
         $useCache = true,
         $headers = [],
         $apiType = "graphql"
     ) {
         $this->serviceUrl = env(
-            "Notification_API",
-            env("SERVICE_BROKER_URL") . "/broker/greep-notification/" . env("APP_STATE")
+            "NOTIFICATION_API",
+            env("SERVICE_BROKER_URL") .
+                "/broker/greep-notification/" .
+                env("APP_STATE")
         );
         $this->notificationNetwork = new NetworkHandler(
             "",
@@ -27,59 +36,53 @@ class NotificationService
         );
     }
 
-    // Device Tokens
-
-    public function registerDeviceToken($request)
+    // Device token
+    /**
+     * Create a device token.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function createDeviceToken(array $request)
     {
-        return $this->notificationNetwork->post("/v1/device-tokens", $request->all());
+        return $this->notificationNetwork->post("/v1/device-tokens", $request);
     }
 
-    public function updateDeviceToken($request)
+    /**
+     * Update a device token.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updateDeviceToken(array $request)
     {
-        return $this->notificationNetwork->put("/v1/device-tokens", $request->all());
-    }
-
-    public function deleteDeviceToken($request)
-    {
-        return $this->notificationNetwork->delete("/v1/device-tokens", $request->all());
+        return $this->notificationNetwork->put("/v1/device-tokens", $request);
     }
 
     // Notifications
 
-    public function sendNotification($request)
+    /**
+     * Send a notification using a template.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function sendNotification(array $request)
     {
-        return $this->notificationNetwork->post("/v1/notifications", $request->all());
+        return $this->notificationNetwork->post("/v1/notifications", $request);
     }
 
-    public function deleteNotification($request)
+    /**
+     * Update a notification.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updateNotificationStatus(array $request)
     {
-        return $this->notificationNetwork->delete("/v1/notifications", $request->all());
-    }
-
-    public function updateNotificationStatus($request)
-    {
-        return $this->notificationNetwork->put("/v1/notifications/status", $request->all());
-    }
-
-    public function broadcastNotification($request)
-    {
-        return $this->notificationNetwork->post("/v1/notifications/broadcast", $request->all());
-    }
-
-    // Notification Templates
-
-    public function createNotificationTemplate($request)
-    {
-        return $this->notificationNetwork->post("/v1/notification-templates", $request->all());
-    }
-
-    public function updateNotificationTemplate($request)
-    {
-        return $this->notificationNetwork->put("/v1/notification-templates", $request->all());
-    }
-
-    public function deleteNotificationTemplate($request)
-    {
-        return $this->notificationNetwork->delete("/v1/notification-templates", $request->all());
+        return $this->notificationNetwork->put(
+            "/v1/notifications/status",
+            $request
+        );
     }
 }

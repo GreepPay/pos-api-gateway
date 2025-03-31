@@ -1,23 +1,13 @@
-# User Queries
-extend type Query @guard {
-    userProfile: UserProfileData @field(resolver: "UserQuery@userProfile")
+extend type Mutation @guard {
+    "Update a user's profile with detailed information"
+    UpdateProfile(
+        first_name: String
+        profile_photo: Upload
+        last_name: String
+        default_currency: String
+        country: String
+        state: String
+        documents: [Upload!]
+        business_name: String
+    ): Boolean! @field(resolver: "UserMutator@updateProfile")
 }
-
-# Verification Mutations (Authenticated)
-# extend type Mutation @guard {
-#     "Submit a verification request"
-#     SubmitVerification(
-#         user_type: String!
-#         document_type: String!
-#         document_url: String!
-#         verification_data: String
-#     ): VerificationStatusResponse!
-#         @field(resolver: "UserMutation@submitVerification")
-
-#     "Approve or reject a verification request"
-#     ApproveVerification(
-#         verificationId: String!
-#         status: String! # Allowed values: "Approved", "Rejected"
-#     ): VerificationStatusResponse!
-#         @field(resolver: "UserMutation@approveVerification")
-# }

@@ -3,13 +3,20 @@
 namespace App\Services;
 
 use App\Datasource\NetworkHandler;
-use Illuminate\Http\Request;
 
 class UserService
 {
     protected $serviceUrl;
     protected NetworkHandler $userNetwork;
 
+    /**
+     * construct
+     *
+     * @param bool $useCache Whether to use caching.
+     * @param array $headers Headers to be sent with the request.
+     * @param string $apiType Type of API to be used.
+     * @return mixed
+     */
     public function __construct(
         bool $useCache = true,
         array $headers = [],
@@ -29,28 +36,51 @@ class UserService
         );
     }
 
-    public function createProfile($request)
+    // Profile
+
+    /**
+     * Create a new profile.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function createProfile(array $request)
     {
-        return $this->userNetwork->post("/v1/profiles", $request->all());
+        return $this->userNetwork->post("/v1/profiles", $request);
     }
 
-    public function updateProfile($request)
+    /**
+     * Update a profile.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updateProfile(array $request)
     {
-        return $this->userNetwork->put("/v1/profiles", $request->all());
+        return $this->userNetwork->put("/v1/profiles", $request);
     }
 
-    public function deleteProfile($request)
+    // Verifications
+
+    /**
+     * Verify user identity.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function verifyIdentity(array $request)
     {
-        return $this->userNetwork->delete("/v1/profiles", $request->all());
+        return $this->userNetwork->post("/v1/verify-identity", $request);
     }
 
-    public function submitVerification($request)
+    /**
+     * Create verification request.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function createVerificationRequest(array $request)
     {
-        return $this->userNetwork->post("/v1/verification", $request->all());
-    }
-
-    public function approveVerification($request)
-    {
-        return $this->userNetwork->post("/v1/verification/approve", $request->all());
+        return $this->userNetwork->post("/v1/verifications", $request);
     }
 }

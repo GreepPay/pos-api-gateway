@@ -3,13 +3,20 @@
 namespace App\Services;
 
 use App\Datasource\NetworkHandler;
-use Illuminate\Http\Request;
 
 class AuthService
 {
     protected $serviceUrl;
     protected $authNetwork;
 
+    /**
+     * construct
+     *
+     * @param bool $useCache
+     * @param array $headers
+     * @param string $apiType
+     * @return mixed
+     */
     public function __construct(
         $useCache = true,
         $headers = [],
@@ -27,71 +34,114 @@ class AuthService
             $apiType
         );
     }
-    public function addUser($request)
-    {
-        return $this->authNetwork->post("/v1/auth/users", $request->all());
-    }
 
-    public function loginUser($request)
-    {
-        return $this->authNetwork->post("/v1/auth/login", $request->all());
-    }
+    // Authentication routes
 
+    /**
+     * Get the authenticated user.
+     *
+     * @return mixed
+     */
     public function authUser()
     {
         return $this->authNetwork->get("/v1/auth/me");
     }
 
-    public function resetOtp($request)
+    /**
+     * Create a new user.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function saveUser(array $request)
     {
-        return $this->authNetwork->post("/v1/auth/reset-otp", $request->all());
+        return $this->authNetwork->post("/v1/auth/users", $request);
     }
 
-    public function verifyOtp($request)
+    /**
+     * Authenticate a user.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function authenticateUser(array $request)
     {
-        return $this->authNetwork->post("/v1/auth/verify-otp", $request->all());
+        return $this->authNetwork->post("/v1/auth/login", $request);
     }
 
-    public function updatePassword($request)
+    /**
+     * Reset user OTP.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function resetOtp(array $request)
     {
-        return $this->authNetwork->post(
-            "/v1/auth/update-password",
-            $request->all()
-        );
+        return $this->authNetwork->post("/v1/auth/reset-otp", $request);
     }
 
-    public function updateProfile($request)
+    /**
+     * Verify user OTP.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function verifyUserOtp(array $request)
     {
-        return $this->authNetwork->post(
-            "/v1/auth/update-profile",
-            $request->all()
-        );
+        return $this->authNetwork->post("/v1/auth/verify-otp", $request);
     }
 
-    public function logout()
+    /**
+     * Update user password.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updatePassword(array $request)
     {
-        return $this->authNetwork->post("/v1/auth/logout", []);
+        return $this->authNetwork->post("/v1/auth/update-password", $request);
     }
 
-    public function deleteUser($id)
+    /**
+     * Update user profile.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updateAuthUserProfile(array $request)
     {
-        return $this->authNetwork->delete("/v1/auth/users/{$id}");
+        return $this->authNetwork->post("/v1/auth/update-profile", $request);
     }
 
-    public function createRole($request)
+    /**
+     * Log out the authenticated user.
+     *
+     * @return mixed
+     */
+    public function logOut()
     {
-        return $this->authNetwork->post("/v1/auth/roles", $request->all());
+        return $this->authNetwork->post("/v1/auth/logout");
     }
 
-    public function updatePermissions($request)
+    /**
+     * Delete a user.
+     *
+     * @param string $userId
+     * @return mixed
+     */
+    public function deleteUser(string $userId)
     {
-        return $this->authNetwork->post(
-            "/v1/auth/permissions",
-            $request->all()
-        );
+        return $this->authNetwork->delete("/v1/auth/users/{$userId}");
     }
 
-    public function userCan($permission_name)
+    // Authentication routes
+
+    /**
+     * Check if the user has permission
+     *
+     * @return mixed
+     */
+    public function userCan(string $permission_name)
     {
         return $this->authNetwork->get("/v1/auth/user-can/{$permission_name}");
     }

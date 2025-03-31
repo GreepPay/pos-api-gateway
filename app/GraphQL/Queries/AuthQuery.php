@@ -2,38 +2,27 @@
 
 namespace App\GraphQL\Queries;
 
-use App\Models\User;
+use App\Models\Auth\User;
 use Illuminate\Support\Facades\Auth;
 
 final class AuthQuery
 {
     /**
-     * Get the authenticated user with wallet and profile info.
+     * Get the currently authenticated user.
      *
-     * @return array
+     * @param  mixed  $_      The parent resolver.  Not used in this query.
+     * @param  array  $args   An array of arguments passed to the query.  Not used in this query.
+     *
+     * @return User|null The authenticated user, or null if not authenticated.
      */
-    public function getAuthUser()
+    public function getAuthUser($_, array $args): ?User
     {
         $user = Auth::user();
 
-        if (!$user) {
-            return [
-                'success' => false,
-                'user'    => null,
-                'wallet'  => null,
-                'profile' => null,
-                'message' => 'User is not authenticated.'
-            ];
+        if ($user) {
+            return $user;
         }
 
-        // $user->load('wallet', 'profile');
-
-        return [
-            'success' => true,
-            'user'    => $user,
-            'wallet'  => $user->wallet,
-            'profile' => null,
-            'message' => 'Authenticated user data retrieved successfully.'
-        ];
+        return null;
     }
 }

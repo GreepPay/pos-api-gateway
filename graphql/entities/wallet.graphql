@@ -1,47 +1,79 @@
 extend type Query @guard {
-    "Get wallet balance and details for the authenticated user"
-    WalletBalance: WalletResponse! @field(resolver: "WalletQuery@walletBalance")
-
+    "Get many transactions - paginated list of transactions for the authenticated user"
     GetTransactions(
-        type: TransactionType = BOTH
-        page: Int = 1
-        perPage: Int = 20
-    ): TransactionPageResponse! @field(resolver: "WalletQuery@getTransactions")
+        orderBy: _ @orderBy(columns: ["created_at"])
+        where: _
+            @whereConditions(
+                columns: [
+                    "dr_or_cr"
+                    "status"
+                    "currency"
+                    "amount"
+                    "chargeable_type"
+                    "reference"
+                ]
+            )
+    ): [Transaction!]! @paginate @whereAuth(relation: "user")
 
-    GetSingleTransaction(uuid: String!): Transaction
-        @find(model: "Transaction", key: "uuid")
+    "Get many point transactions"
+    GetPointTransactions(
+        orderBy: _ @orderBy(columns: ["created_at"])
+        where: _
+            @whereConditions(
+                columns: [
+                    "dr_or_cr"
+                    "status"
+                    "currency"
+                    "amount"
+                    "chargeable_type"
+                    "reference"
+                ]
+            )
+    ): [PointTransaction!]! @paginate @whereAuth(relation: "user")
 
-    GetSinglePointTransaction(uuid: String!): PointTransaction
-        @find(model: "PointTransaction", key: "uuid")
+    "Get a single transaction by UUID"
+    GetSingleTransaction(uuid: String! @eq): Transaction @first
 
-    GetSavedAccounts: [UserBank!]!
-        @all(model: "UserBank")
-        @whereAuth(relation: "user")
+    "Get a single point transaction by UUID"
+    GetSinglePointTransaction(uuid: String! @eq): PointTransaction @first
 
-    GetSingleSavedAccount(uuid: String!): UserBank
-        @find(model: "UserBank", key: "uuid")
+    "Get a paginated list of saved accounts for the authenticated user"
+    GetSavedAccounts: [UserBank]! @paginate @whereAuth(relation: "user")
 
-    GetNotifications: NotificationPaginator!
-        @paginate(model: "Notification")
-        @whereAuth(relation: "user")
+    "Get the currently supported off-ramp currencies"
+    GetOffRampCurrencies: [SupportedCurrency!]!
+        @field(resolver: "WalletQuery@getOffRampCurrencies")
 
+    "Get the current exchange rate between two currencies"
     GetExchangeRate(
         from_currency: String!
         to_currency: String!
-    ): ExchangeRateResponse! @field(resolver: "WalletQuery@getExchangeRate")
+    ): ExchangeRate! @field(resolver: "WalletQuery@getExchangeRate")
 }
 
 extend type Mutation @guard {
-    "Create a saved account for the authenticated user"
-    CreateSavedAccount(input: CreateSavedAccountInput!): SavedAccountResponse!
-        @field(resolver: "WalletMutation@createUserBank")
+    "Initiate withdrawal"
+    InitiateWithdrawal(
+        saved_account_uuid: String!
+        amount: Float!
+        withdrawal_currency: String!
+    ): Boolean! @field(resolver: "WalletMutator@initiateWithdrawal")
 
-    # UpdateSavedAccount(
-    #     saved_account_uuid: String!
-    #     metadata: JSON!
-    # ): SavedAccountResponse!
-    #     @field(resolver: "walletMutation@updateSavedAccount")
+    "Redeem GRP tokens"
+    RedeemGRPToken(grp_amount: Float!): Boolean!
+        @field(resolver: "WalletMutator@redeemGRPToken")
 
-    # RedeemGRPToken(grp_amount: Float!): RedeemResponse!
-    #     @field(resolver: "WalletMutation@redeemGRPToken")
+    "Create a saved account"
+    CreateSavedAccount(
+        "can be  ‘crypto’, ‘bank_account’, ‘mobile_money’"
+        type: String!
+        "unique id from the account e.g account number , phone number, wallet address e.t.c"
+        unique_id: String!
+        "Stringified JSON object containing additional account details"
+        metadata: String!
+    ): UserBank! @field(resolver: "WalletMutator@createSavedAccount")
+
+    "Remove a saved account"
+    RemoveSavedAccount(saved_account_uuid: String!): Boolean!
+        @field(resolver: "WalletMutator@removeSavedAccount")
 }

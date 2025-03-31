@@ -3,13 +3,20 @@
 namespace App\Services;
 
 use App\Datasource\NetworkHandler;
-use Illuminate\Http\Request;
 
 class WalletService
 {
     protected $serviceUrl;
     protected NetworkHandler $walletNetwork;
 
+    /**
+     * construct
+     *
+     * @param bool $useCache Whether to use cache
+     * @param array $headers Headers to send with the request
+     * @param string $apiType Type of API to use
+     * @return mixed
+     */
     public function __construct(
         bool $useCache = true,
         array $headers = [],
@@ -17,7 +24,9 @@ class WalletService
     ) {
         $this->serviceUrl = env(
             "WALLET_API",
-            env("SERVICE_BROKER_URL") . "/broker/greep-wallet/" . env("APP_STATE")
+            env("SERVICE_BROKER_URL") .
+                "/broker/greep-wallet/" .
+                env("APP_STATE")
         );
 
         $this->walletNetwork = new NetworkHandler(
@@ -29,64 +38,199 @@ class WalletService
         );
     }
 
-    public function createWallet($request)
+    // Wallet
+
+    /**
+     * Create a wallet
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function createWallet(array $data)
     {
-        return $this->walletNetwork->post("/v1/wallets", $request->all());
+        return $this->walletNetwork->post("/v1/wallets", $data);
     }
 
-    public function updateWalletBalance($id, $request)
+    // Saved Bank Account
+
+    /**
+     * Create a saved bank account
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function createSavedBankAccount(array $data)
     {
-        return $this->walletNetwork->post("/v1/wallets/{$id}/balance", $request->all());
+        return $this->walletNetwork->post("/v1/user-banks", $data);
     }
 
-    public function softDeleteWallet($id)
+    /**
+     * Soft delete a saved bank account
+     *
+     * @param string $id
+     * @return mixed
+     */
+    public function softDeleteSavedBankAccount(string $id)
     {
-        return $this->walletNetwork->post("/v1/wallets/{$id}/soft-delete", []);
+        return $this->walletNetwork->post("/v1/user-banks/{$id}/soft-delete");
     }
 
-    // Point Transactions Endpoints
-    public function createPointTransaction($request)
+    // Settlement (offRamp)
+
+    /**
+     * Get OffRamp Supported Countries
+     *
+     * @return mixed
+     */
+    public function getOffRampSupportedCountries()
     {
-        return $this->walletNetwork->post("/v1/point-transactions", $request->all());
+        return $this->walletNetwork->get("/v1/offramp/supported-countries");
     }
 
-    public function updatePointTransactionStatus($id, $request)
+    /**
+     * Get channels by country code
+     *
+     * @param string $countryCode
+     * @return mixed
+     */
+    public function getOnRampChannelsByCountryCode(string $countryCode)
     {
-        return $this->walletNetwork->post("/v1/point-transactions/{$id}/status", $request->all());
+        return $this->walletNetwork->get("/v1/onramp/channels/{$countryCode}");
     }
 
-    public function softDeletePointTransaction($id)
+    /**
+     * Get network by country code
+     *
+     * @param string $countryCode
+     * @return mixed
+     */
+    public function getOnRampNetworkByCountryCode(string $countryCode)
     {
-        return $this->walletNetwork->post("/v1/point-transactions/{$id}/soft-delete", []);
+        return $this->walletNetwork->get("/v1/onramp/networks/{$countryCode}");
     }
 
-    public function createTransaction($request)
+    /**
+     * Get exchange rates
+     *
+     * @param string $toCurrency. Default from currency is USD
+     * @return mixed
+     */
+    public function getExchangeRates(string $toCurrency)
     {
-        return $this->walletNetwork->post("/v1/transactions", $request->all());
+        return $this->walletNetwork->get(
+            "/v1/onramp/exchange-rates/{$toCurrency}"
+        );
     }
 
-    public function updateTransactionStatus($id, $request)
+    /**
+     * Get payment settlements
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function getPaymentSettlement($id)
     {
-        return $this->walletNetwork->post("/v1/transactions/{$id}/status", $request->all());
+        return $this->walletNetwork->get("/v1/offramp/settlement/{$id}");
     }
 
-    public function softDeleteTransaction($id)
+    /**
+     * Create payment settlement
+     *
+     * @param array $data
+     * @param int $wallet_id
+     * @param int $user_id
+     * @return mixed
+     */
+    public function createPaymentSettlement(array $data, $wallet_id, $user_id)
     {
-        return $this->walletNetwork->post("/v1/transactions/{$id}/soft-delete", []);
+        return $this->walletNetwork->post(
+            "/v1/offramp/{$wallet_id}/{$user_id}",
+            $data
+        );
     }
 
-    public function createUserBank($request)
+    /**
+     * Accept payment settlement
+     * @param int $id
+     * @return mixed
+     */
+    public function acceptPaymentSettlement($id)
     {
-        return $this->walletNetwork->post("/v1/user-banks", $request->all());
+        return $this->walletNetwork->post("/v1/offramp/accept/{$id}", []);
     }
 
-    public function updateUserBank($id, $request)
+    /**
+     * Deny payment settlement
+     * @param int $id
+     * @return mixed
+     */
+    public function denyPaymentSettlement($id)
     {
-        return $this->walletNetwork->post("/v1/user-banks/{$id}", $request->all());
+        return $this->walletNetwork->post("/v1/offramp/deny/{$id}", []);
     }
 
-    public function softDeleteUserBank($id)
+    /**
+     * Resolve bank account
+     * @param array $data
+     * @return mixed
+     */
+    public function resolveBankAccount(array $data)
     {
-        return $this->walletNetwork->post("/v1/user-banks/{$id}/soft-delete", []);
+        return $this->walletNetwork->post(
+            "/v1/offramp/resolve-bank-account",
+            $data
+        );
+    }
+
+    // Point transactions
+
+    /**
+     * Create point transaction
+     * @param array $data
+     * @return mixed
+     */
+    public function createPointTransaction(array $data)
+    {
+        return $this->walletNetwork->post("/v1/point-transactions", $data);
+    }
+
+    // Update point transaction status
+    /**
+     * Update point transaction status
+     * @param int $id
+     * @param string $status
+     * @return mixed
+     */
+    public function updatePointTransactionStatus($id, $status)
+    {
+        return $this->walletNetwork->post(
+            "/v1/point-transactions/{$id}/status",
+            ["status" => $status]
+        );
+    }
+
+    // Transaction (normal)
+
+    /**
+     * Create transaction
+     * @param array $data
+     * @return mixed
+     */
+    public function createTransaction(array $data)
+    {
+        return $this->walletNetwork->post("/v1/transactions", $data);
+    }
+
+    /**
+     * Update transaction status
+     * @param int $id
+     * @param string $status
+     * @return mixed
+     */
+    public function updateTransactionStatus($id, $status)
+    {
+        return $this->walletNetwork->post("/v1/transactions/{$id}/status", [
+            "status" => $status,
+        ]);
     }
 }

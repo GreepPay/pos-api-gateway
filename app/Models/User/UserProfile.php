@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
- * 
+ *
  *
  * @property string $auth_user_id
  * @property string|null $profile_picture
@@ -55,17 +55,5 @@ class UserProfile extends Model
     public function business(): HasOne
     {
         return $this->hasOne(Business::class, "auth_user_id", "auth_user_id");
-    }
-
-    // Define the relationship to Rider details
-    public function rider(): HasOne
-    {
-        return $this->hasOne(Rider::class, "auth_user_id", "auth_user_id");
-    }
-
-    // Define the relationship to Customer details
-    public function customer(): HasOne
-    {
-        return $this->hasOne(Customer::class, "auth_user_id", "auth_user_id");
     }
 }

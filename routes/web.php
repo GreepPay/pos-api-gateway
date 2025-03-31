@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiDocController;
+use App\Http\Controllers\APIDocController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,12 +16,12 @@ use App\Http\Controllers\ApiDocController;
 
 // Microservice API Docs
 Route::get("/service-docs/{serviceName}", [
-    ApiDocController::class,
+    APIDocController::class,
     "getAPIDocHTML",
 ]);
 
 Route::get("/service-swagger-doc/{serviceName}", [
-    ApiDocController::class,
+    APIDocController::class,
     "getAPIDoc",
 ]);
 

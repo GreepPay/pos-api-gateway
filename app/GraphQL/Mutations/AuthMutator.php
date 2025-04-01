@@ -282,7 +282,8 @@ final class AuthMutator
             "otp" => $args["otp"],
         ];
 
-        $this->authService->verifyUserOtp($payload);
+        // Free pass for now, until sending of email verification is implemented
+        // $this->authService->verifyUserOtp($payload);
 
         return true;
     }

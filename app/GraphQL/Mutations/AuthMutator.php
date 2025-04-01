@@ -11,6 +11,7 @@ use App\Services\NotificationService;
 use App\Services\UserService;
 use App\Services\WalletService;
 use App\Traits\FileUploadTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 final class AuthMutator
@@ -88,7 +89,9 @@ final class AuthMutator
         if (is_array($args["documents"])) {
             foreach ($args["documents"] as $doc) {
                 // Call your uploadFile function with the file upload.
-                $url = $this->uploadFile($doc, false);
+                $request = new Request();
+                $request->files->set("attachment", $doc);
+                $url = $this->uploadFile($request, false);
                 $documentUrls[] = $url;
             }
         } else {

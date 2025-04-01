@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\User\User;
+use App\Models\Auth\User;
 use App\Services\AuthService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\RequestGuard;
@@ -27,25 +27,28 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Auth::extend('custom', function ($app, $name, array $config) {
-            return new RequestGuard(function ($request) {
-                $token = $request->bearerToken();
+        Auth::extend("custom", function ($app, $name, array $config) {
+            return new RequestGuard(
+                function ($request) {
+                    $token = $request->bearerToken();
 
-                if (!$token) {
-                    return null;
-                }
+                    if (!$token) {
+                        return null;
+                    }
 
-                $authService = new AuthService();
-                $response = $authService->authUser();
+                    $authService = new AuthService();
+                    $response = $authService->authUser();
 
-                if (!$response || empty($response['data'])) {
-                    return null;
-                }
+                    if (!$response || empty($response["data"])) {
+                        return null;
+                    }
 
-                $user =  User::where('id', $response['data']['id'])->first();
-                return $user;
-
-            }, $app['request'], $app['auth']->createUserProvider($config['provider']));
+                    $user = User::where("id", $response["data"]["id"])->first();
+                    return $user;
+                },
+                $app["request"],
+                $app["auth"]->createUserProvider($config["provider"])
+            );
         });
     }
 }

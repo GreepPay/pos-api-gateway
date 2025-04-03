@@ -4,12 +4,10 @@ namespace App\Models\Blockchain;
 
 use App\Models\Wallet\Wallet;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $stellar_address
@@ -39,13 +37,15 @@ class Account extends Model
 
     protected $table = "accounts";
 
-    public function wallet(): HasOne
+    public function wallet(): Wallet|null
     {
-        return $this->hasOne(Wallet::class, "blockchain_account_id", "id");
+        return Wallet::query()
+            ->where("blockchain_account_id", $this->id)
+            ->first();
     }
 
-    public function trustlines(): HasMany
+    public function trustlines(): Trustline|null
     {
-        return $this->hasMany(Trustline::class);
+        return Trustline::query()->where("account_id", $this->id)->get();
     }
 }

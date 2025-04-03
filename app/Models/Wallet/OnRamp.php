@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $uuid

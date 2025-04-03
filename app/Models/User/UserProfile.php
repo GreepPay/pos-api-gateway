@@ -2,11 +2,12 @@
 
 namespace App\Models\User;
 
+use App\Exceptions\GraphQLException;
 use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
+use Illuminate\Support\Facades\Auth;
 
 /**
  *
@@ -42,9 +43,9 @@ class UserProfile extends Model
 
     protected $table = "user_profiles";
 
-    public function user(): BelongsTo
+    public function user(): User|null
     {
-        return $this->belongsTo(User::class, "auth_user_id", "id");
+        return User::query()->where("id", $this->auth_user_id)->first();
     }
 
     public function getUserTypeAttribute(): string|null
@@ -55,5 +56,20 @@ class UserProfile extends Model
     public function business(): HasOne
     {
         return $this->hasOne(Business::class, "auth_user_id", "auth_user_id");
+    }
+
+    /**
+     * Scope a query to only include point transactions belonging to the currently authenticated user.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param bool $forCurrentUser
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForCurrentUser($query, bool $forCurrentUser): mixed
+    {
+        if (!$forCurrentUser) {
+            throw new GraphQLException("Unauthorized");
+        }
+        return $query->where("auth_user_id", Auth::id());
     }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Models\User;
 
+use App\Exceptions\GraphQLException;
 use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
+use Illuminate\Support\Facades\Auth;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $auth_user_id
@@ -56,12 +57,23 @@ class Business extends Model
 
     protected $table = "businesses";
 
-    public function user(): BelongsTo
+    public function user(): User|null
     {
-        return $this->belongsTo(
-            User::class,
-            foreignKey: "auth_user_id",
-            ownerKey: "id"
-        );
+        return User::query()->where("id", $this->auth_user_id)->first();
+    }
+
+    /**
+     * Scope a query to only include point transactions belonging to the currently authenticated user.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param bool $forCurrentUser
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForCurrentUser($query, bool $forCurrentUser): mixed
+    {
+        if (!$forCurrentUser) {
+            throw new GraphQLException("Unauthorized");
+        }
+        return $query->where("auth_user_id", Auth::id());
     }
 }

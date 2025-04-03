@@ -3,11 +3,10 @@
 namespace App\Models\Blockchain;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $account_id
@@ -37,8 +36,8 @@ class Trustline extends Model
 
     protected $table = "trustlines";
 
-    public function account(): BelongsTo
+    public function account(): Account|null
     {
-        return $this->belongsTo(Account::class);
+        return Account::query()->where("id", $this->account_id)->first();
     }
 }

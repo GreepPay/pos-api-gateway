@@ -5,6 +5,7 @@ namespace App\Datasource;
 use App\Exceptions\GraphQLException;
 use App\Jobs\UpdateCache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Client\Response;
 
@@ -222,7 +223,7 @@ class NetworkHandler
     ) {
         $fullUrl = $this->service_url . $path . $params;
 
-        // Log::debug($fullUrl);
+        Log::debug($fullUrl);
 
         if ($this->defaultCache && $cacheable) {
             $dataFromCache = $this->consumeData($fullUrl);
@@ -254,12 +255,12 @@ class NetworkHandler
         array $updateTasks = []
     ) {
         if (count($updateTasks) > 0) {
-            $cacheUpdator = new UpdateCache($updateTasks);
-            dispatch($cacheUpdator);
+            // $cacheUpdator = new UpdateCache($updateTasks);
+            // dispatch($cacheUpdator);
         }
 
         $fullUrl = $this->service_url . $path;
-        // Log::info($fullUrl);
+        Log::info($fullUrl);
 
         if ($cacheable && $this->defaultCache) {
             $requestDataFromCache = $this->consumeData(
@@ -317,8 +318,8 @@ class NetworkHandler
     public function put(string $path, array $data, array $updateTasks = [])
     {
         if (count($updateTasks) > 0) {
-            $cacheUpdator = new UpdateCache($updateTasks);
-            dispatch($cacheUpdator);
+            // $cacheUpdator = new UpdateCache($updateTasks);
+            // dispatch($cacheUpdator);
         }
 
         $fullUrl = $this->service_url . $path;
@@ -339,8 +340,8 @@ class NetworkHandler
     public function delete(string $path, array $updateTasks = [])
     {
         if (count($updateTasks) > 0) {
-            $cacheUpdator = new UpdateCache($updateTasks);
-            dispatch($cacheUpdator);
+            // $cacheUpdator = new UpdateCache($updateTasks);
+            // dispatch($cacheUpdator);
         }
 
         $fullUrl = $this->service_url . $path;

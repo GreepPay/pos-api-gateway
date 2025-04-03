@@ -13,7 +13,7 @@ type Profile {
     verification_status: String!
 
     "The attached customer"
-    business: Business! @method(name: "Business")
+    business: Business! @hasOne
 
     "All attached verifications"
     verifications: [Verification!]! @hasMany

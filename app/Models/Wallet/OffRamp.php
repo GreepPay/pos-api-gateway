@@ -73,5 +73,5 @@ class OffRamp extends Model
 
     protected $connection = "greep-wallet";
 
-    protected $table = "offramp";
+    protected $table = "wallet_service.offramp";
 }

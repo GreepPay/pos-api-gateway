@@ -4,6 +4,8 @@ namespace App\Models\Blockchain;
 
 use App\Models\Wallet\Wallet;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
@@ -35,17 +37,15 @@ class Account extends Model
 
     protected $connection = "greep-blockchain";
 
-    protected $table = "accounts";
+    protected $table = "blockchain_service.accounts";
 
-    public function wallet(): Wallet|null
+    public function wallet(): HasOne
     {
-        return Wallet::query()
-            ->where("blockchain_account_id", $this->id)
-            ->first();
+        return $this->hasOne(Wallet::class, "blockchain_account_id", "id");
     }
 
-    public function trustlines(): Trustline|null
+    public function trustlines(): HasMany
     {
-        return Trustline::query()->where("account_id", $this->id)->get();
+        return $this->hasMany(Trustline::class);
     }
 }

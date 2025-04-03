@@ -63,5 +63,5 @@ class OnRamp extends Model
 
     protected $connection = "greep-wallet";
 
-    protected $table = "onramp";
+    protected $table = "wallet_service.onramp";
 }

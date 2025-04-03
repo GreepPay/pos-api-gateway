@@ -9,6 +9,8 @@ use App\Models\Wallet\Wallet;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
@@ -76,22 +78,32 @@ class User extends Model implements AuthenticatableContract
 
     protected $connection = "greep-auth";
 
-    public function profile(): UserProfile
+    protected $table = "auth_service.users";
+
+    public function profile(): HasOne
     {
-        return UserProfile::query()->where("auth_user_id", $this->id)->first();
+        return $this->hasOne(UserProfile::class, "auth_user_id", "id");
     }
 
-    public function wallet(): Wallet|null
+    public function wallet(): HasOne
     {
-        return Wallet::query()->where("user_id", $this->id)->first();
+        return $this->hasOne(Wallet::class);
     }
-    public function transactions(): mixed
+    public function transactions(): HasMany
     {
-        return Transaction::query()->where("user_id", $this->id)->get();
+        return $this->hasMany(Transaction::class, "user_id", "id");
     }
 
-    public function pointTransactions(): mixed
+    public function pointTransactions(): HasMany
     {
-        return PointTransaction::query()->where("user_id", $this->id)->get();
+        return $this->hasMany(PointTransaction::class, "user_id", "id");
+    }
+
+    public function getCombinedTransactionsAttribute(): mixed
+    {
+        $normal = $this->transactions;
+        $points = $this->pointTransactions;
+
+        return $normal->merge($points)->sortByDesc("created_at")->values();
     }
 }

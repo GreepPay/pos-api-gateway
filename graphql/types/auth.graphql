@@ -28,10 +28,10 @@ type User {
     status: String!
 
     "The attached profile"
-    profile: Profile! @method(name: "Profile")
+    profile: Profile! @hasOne
 
     "The attached wallet"
-    wallet: Wallet! @method(name: "Wallet")
+    wallet: Wallet! @hasOne
 
     "The user created at"
     created_at: DateTime!

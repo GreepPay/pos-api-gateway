@@ -2,11 +2,10 @@
 
 namespace App\Models\Wallet;
 
-use App\Exceptions\GraphQLException;
 use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
-use Illuminate\Support\Facades\Auth;
 
 /**
  *
@@ -49,23 +48,10 @@ class UserBank extends Model
 
     protected $connection = "greep-wallet";
 
-    public function user(): User|null
-    {
-        return User::query()->where("id", $this->user_id)->first();
-    }
+    protected $table = "wallet_service.user_banks";
 
-    /**
-     * Scope a query to only include point transactions belonging to the currently authenticated user.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param bool $forCurrentUser
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeForCurrentUser($query, bool $forCurrentUser): mixed
+    public function user(): BelongsTo
     {
-        if (!$forCurrentUser) {
-            throw new GraphQLException("Unauthorized");
-        }
-        return $query->where("user_id", Auth::id());
+        return $this->belongsTo(User::class, "user_id", "id");
     }
 }

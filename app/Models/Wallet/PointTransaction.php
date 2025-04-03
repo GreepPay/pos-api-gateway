@@ -2,11 +2,10 @@
 
 namespace App\Models\Wallet;
 
-use App\Exceptions\GraphQLException;
 use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
-use Illuminate\Support\Facades\Auth;
 
 /**
  *
@@ -49,7 +48,6 @@ use Illuminate\Support\Facades\Auth;
  * @method static \Illuminate\Database\Eloquent\Builder|PointTransaction whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PointTransaction whereUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PointTransaction whereWalletId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PointTransaction forCurrentUser()
  * @mixin \Eloquent
  */
 class PointTransaction extends Model
@@ -57,25 +55,10 @@ class PointTransaction extends Model
     use ReadOnlyTrait;
     protected $connection = "greep-wallet";
 
-    protected $table = "point_transactions";
+    protected $table = "wallet_service.point_transactions";
 
-    public function user(): User|null
+    public function user(): BelongsTo
     {
-        return User::query()->where("id", $this->user_id)->first();
-    }
-
-    /**
-     * Scope a query to only include point transactions belonging to the currently authenticated user.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param bool $forCurrentUser
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeForCurrentUser($query, bool $forCurrentUser): mixed
-    {
-        if (!$forCurrentUser) {
-            throw new GraphQLException("Unauthorized");
-        }
-        return $query->where("user_id", Auth::id());
+        return $this->belongsTo(User::class);
     }
 }

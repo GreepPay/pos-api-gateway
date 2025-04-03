@@ -3,6 +3,7 @@
 namespace App\Models\Blockchain;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
@@ -34,10 +35,10 @@ class Trustline extends Model
 
     protected $connection = "greep-blockchain";
 
-    protected $table = "trustlines";
+    protected $table = "blockchain_service.trustlines";
 
-    public function account(): Account|null
+    public function account(): BelongsTo
     {
-        return Account::query()->where("id", $this->account_id)->first();
+        return $this->belongsTo(Account::class);
     }
 }

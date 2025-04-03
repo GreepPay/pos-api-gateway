@@ -2,11 +2,10 @@
 
 namespace App\Models\Notification;
 
-use App\Exceptions\GraphQLException;
 use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
-use Illuminate\Support\Facades\Auth;
 
 /**
  *
@@ -43,25 +42,14 @@ class Notification extends Model
 
     protected $connection = "greep-notification";
 
-    protected $table = "notifications";
+    protected $table = "notification_service.notifications";
 
-    public function user(): User|null
+    public function user(): BelongsTo
     {
-        return User::query()->where("id", $this->auth_user_id)->first();
-    }
-
-    /**
-     * Scope a query to only include point transactions belonging to the currently authenticated user.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param bool $forCurrentUser
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeForCurrentUser($query, bool $forCurrentUser): mixed
-    {
-        if (!$forCurrentUser) {
-            throw new GraphQLException("Unauthorized");
-        }
-        return $query->where("auth_user_id", Auth::id());
+        return $this->belongsTo(
+            User::class,
+            foreignKey: "auth_user_id",
+            ownerKey: "id"
+        );
     }
 }

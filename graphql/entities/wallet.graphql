@@ -1,7 +1,6 @@
 extend type Query @guard {
     "Get many transactions - paginated list of transactions for the authenticated user"
     GetTransactions(
-        forCurrentUser: Boolean = true @scope
         orderBy: _ @orderBy(columns: ["created_at"])
         where: _
             @whereConditions(
@@ -14,11 +13,10 @@ extend type Query @guard {
                     "reference"
                 ]
             )
-    ): [Transaction!]! @paginate
+    ): [Transaction!]! @paginate @whereAuth(relation: "user")
 
     "Get many point transactions"
     GetPointTransactions(
-        forCurrentUser: Boolean = true @scope
         orderBy: _ @orderBy(columns: ["created_at"])
         where: _
             @whereConditions(
@@ -31,7 +29,7 @@ extend type Query @guard {
                     "reference"
                 ]
             )
-    ): [PointTransaction!]! @paginate
+    ): [PointTransaction!]! @paginate @whereAuth(relation: "user")
 
     "Get a single transaction by UUID"
     GetSingleTransaction(uuid: String! @eq): Transaction @first

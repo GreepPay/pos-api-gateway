@@ -219,11 +219,11 @@ class NetworkHandler
     public function get(
         string $path,
         string $params = "",
-        bool $cacheable = true
+        bool $cacheable = false
     ) {
         $fullUrl = $this->service_url . $path . $params;
 
-        Log::debug($fullUrl);
+        // Log::debug($fullUrl);
 
         if ($this->defaultCache && $cacheable) {
             $dataFromCache = $this->consumeData($fullUrl);
@@ -260,7 +260,7 @@ class NetworkHandler
         }
 
         $fullUrl = $this->service_url . $path;
-        Log::info($fullUrl);
+        // Log::info($fullUrl);
 
         if ($cacheable && $this->defaultCache) {
             $requestDataFromCache = $this->consumeData(

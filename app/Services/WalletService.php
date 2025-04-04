@@ -233,4 +233,18 @@ class WalletService
             "status" => $status,
         ]);
     }
+
+    // Global exchange rate
+    /**
+     * Get global exchange rate
+     * @param string $base
+     * @param string $target
+     * @return mixed
+     */
+    public function getGlobalExchangeRate(string $base, string $target)
+    {
+        return $this->walletNetwork->get(
+            "/v1/global-exchange-rates?base={$base}&target={$target}"
+        );
+    }
 }

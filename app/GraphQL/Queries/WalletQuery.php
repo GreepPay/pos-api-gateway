@@ -40,4 +40,20 @@ final class WalletQuery
     {
         return $this->walletService->getOffRampSupportedCountries()["data"];
     }
+
+    /**
+     * Get global exchange rate for a given currency pair.
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     *
+     * @return float
+     */
+    public function getGlobalExchangeRate($_, array $args): mixed
+    {
+        return $this->walletService->getGlobalExchangeRate(
+            $args["base"],
+            $args["target"]
+        )["data"];
+    }
 }

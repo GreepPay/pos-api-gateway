@@ -48,7 +48,7 @@ class UserBank extends Model
 
     protected $connection = "greep-wallet";
 
-    protected $table = "wallet_service.user_banks";
+    protected $table = "wallet_service.user_bank";
 
     public function user(): BelongsTo
     {

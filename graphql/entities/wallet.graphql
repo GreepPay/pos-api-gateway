@@ -49,6 +49,10 @@ extend type Query @guard {
         from_currency: String!
         to_currency: String!
     ): ExchangeRate! @field(resolver: "WalletQuery@getExchangeRate")
+
+    "Get the global exchange rate between two currencies"
+    GetGlobalExchangeRate(base: String!, target: String!): GlobalExchangeRate!
+        @field(resolver: "WalletQuery@getGlobalExchangeRate")
 }
 
 extend type Mutation @guard {

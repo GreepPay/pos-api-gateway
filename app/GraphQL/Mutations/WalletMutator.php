@@ -6,6 +6,7 @@ use App\Models\Wallet\UserBank;
 use App\Services\BlockchainService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 final class WalletMutator
 {
@@ -68,6 +69,7 @@ final class WalletMutator
             "bank_name" => "placeholder",
             "account_no" => $args["unique_id"],
             "meta_data" => $args["metadata"],
+            "currency" => "base",
         ]);
 
         $newAccount = $newAccount["data"];

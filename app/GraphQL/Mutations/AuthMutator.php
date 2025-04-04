@@ -106,7 +106,7 @@ final class AuthMutator
             "lastName" => $args["last_name"],
             "email" => $args["email"],
             "password" => $args["password"],
-            "role" => "business",
+            "role" => "Business",
         ]);
 
         $authUser = $authUser["data"];

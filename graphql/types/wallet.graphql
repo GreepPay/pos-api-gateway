@@ -177,3 +177,20 @@ type Wallet {
     "Wallet Updated At"
     updated_at: DateTime!
 }
+
+type GlobalExchangeRate {
+    "Base Currency"
+    base: String!
+
+    "Target Currency"
+    target: String!
+
+    "Mid Rate"
+    mid: Float!
+
+    "Unit"
+    unit: Int!
+
+    "Timestamp"
+    timestamp: DateTime!
+}

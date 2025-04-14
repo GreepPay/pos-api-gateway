@@ -120,7 +120,7 @@ class AuthService
      */
     public function logOut()
     {
-        return $this->authNetwork->post("/v1/auth/logout");
+        return $this->authNetwork->post("/v1/auth/logout", []);
     }
 
     /**

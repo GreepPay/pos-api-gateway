@@ -293,11 +293,13 @@ final class AuthMutator
      *
      * @param mixed $_
      * @param array $args
-     * @return mixed
+     * @return bool
      */
-    public function logout($_, array $args): mixed
+    public function logout($_, array $args): bool
     {
         return $this->authService->logOut();
+
+        return true;
     }
 
     /**

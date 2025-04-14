@@ -45,6 +45,9 @@ extend type Mutation {
     "Verify user OTP"
     VerifyUserOTP(user_uuid: String!, otp: String!): Boolean!
         @field(resolver: "AuthMutator@verifyUserOTP")
+
+    "Sign out a user"
+    SignOut: Boolean! @field(resolver: "AuthMutator@logout")
 }
 
 extend type Mutation @guard {

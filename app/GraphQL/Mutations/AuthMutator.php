@@ -297,7 +297,7 @@ final class AuthMutator
      */
     public function logout($_, array $args): bool
     {
-        return $this->authService->logOut();
+        $this->authService->logOut();
 
         return true;
     }

@@ -7,6 +7,7 @@ use App\Services\AuthService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Support\Facades\Auth;
+use App\Exceptions\GraphQLException;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -43,7 +44,17 @@ class AuthServiceProvider extends ServiceProvider
                         return null;
                     }
 
-                    $user = User::where("id", $response["data"]["id"])->first();
+                    $user = User::query()
+                        ->where("id", $response["data"]["id"])
+                        ->with("profile")
+                        ->first();
+
+                    if ($user->profile->user_type != "Business") {
+                        throw new GraphQlException(
+                            "Unauthorized. Please use the {$user->profile->user_type} app instead"
+                        );
+                    }
+
                     return $user;
                 },
                 $app["request"],

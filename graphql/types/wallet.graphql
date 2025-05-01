@@ -105,6 +105,9 @@ type Transaction {
     "Charge ID"
     charge_id: String!
 
+    "The associated point transaction"
+    point_transaction: PointTransaction @method(name: "pointTransaction")
+
     "Chargeable Type"
     chargeable_type: String!
 

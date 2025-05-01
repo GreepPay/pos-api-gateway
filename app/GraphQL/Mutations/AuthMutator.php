@@ -106,10 +106,20 @@ final class AuthMutator
             "lastName" => $args["last_name"],
             "email" => $args["email"],
             "password" => $args["password"],
+            "phoneNumber" => $args["phone_number"],
             "role" => "Business",
         ]);
 
         $authUser = $authUser["data"];
+
+        $logoUrl = null;
+
+        if (isset($args["business_logo"])) {
+            $request = new Request();
+            $request->files->set("attachment", $args["business_logo"]);
+            $url = $this->uploadFile($request, false);
+            $logoUrl = $url;
+        }
 
         // Create a default profile for the user
         $this->userService->createProfile([
@@ -121,6 +131,13 @@ final class AuthMutator
                 "city" => $args["state"],
                 "business_name" => $args["business_name"],
                 "documents" => $documentUrls,
+                "logo" => $logoUrl,
+                "category" => isset($args["business_category"])
+                    ? $args["business_category"]
+                    : null,
+                "description" => isset($args["business_description"])
+                    ? $args["business_description"]
+                    : null,
             ],
         ]);
 

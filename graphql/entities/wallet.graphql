@@ -1,3 +1,9 @@
+input FinancialSummaryInput {
+    type: String!
+    from: String
+    to: String
+}
+
 extend type Query @guard {
     "Get many transactions - paginated list of transactions for the authenticated user"
     GetTransactions(
@@ -53,6 +59,12 @@ extend type Query @guard {
     "Get the global exchange rate between two currencies"
     GetGlobalExchangeRate(base: String!, target: String!): GlobalExchangeRate!
         @field(resolver: "WalletQuery@getGlobalExchangeRate")
+
+    "Get financial summary"
+    GetFinancialSummary(
+        input: FinancialSummaryInput! @spread
+    ): FinancialSummaryResponse!
+        @field(resolver: "WalletQuery@getFinancialSummary")
 }
 
 extend type Mutation @guard {

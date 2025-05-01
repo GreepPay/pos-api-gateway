@@ -10,6 +10,7 @@ use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\BlockchainService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 final class UserMutator
 {
@@ -40,7 +41,7 @@ final class UserMutator
 
         $profilePhotoUrl = null;
         // Check if profile photo is provided
-        if ($args["profile_photo"]) {
+        if (isset($args["profile_photo"])) {
             $request = new Request();
             $request->files->set("attachment", $args["profile_photo"]);
             $profilePhotoUrl = $this->uploadFile($request, false);
@@ -56,12 +57,25 @@ final class UserMutator
                 "lastName" => isset($args["last_name"])
                     ? $args["last_name"]
                     : null,
+                "phoneNumber" => isset($args["phone_number"])
+                    ? $args["phone_number"]
+                    : null,
             ]);
+        }
+
+        $logoUrl = null;
+
+        if (isset($args["business_logo"])) {
+            $request = new Request();
+            $request->files->set("attachment", $args["business_logo"]);
+            $url = $this->uploadFile($request, false);
+            $logoUrl = $url;
         }
 
         // Update other user info in user service
         $payload = [
-            "auth_user_id" => $authUser->id,
+            "user_type" => "Business",
+            "auth_user_id" => (string) $authUser->id,
             "default_currency" => isset($args["default_currency"])
                 ? $args["default_currency"]
                 : null,
@@ -71,6 +85,13 @@ final class UserMutator
                 "city" => isset($args["state"]) ? $args["state"] : null,
                 "business_name" => isset($args["business_name"])
                     ? $args["business_name"]
+                    : null,
+                "logo" => $logoUrl,
+                "category" => isset($args["business_category"])
+                    ? $args["business_category"]
+                    : null,
+                "description" => isset($args["business_description"])
+                    ? $args["business_description"]
                     : null,
             ],
         ];

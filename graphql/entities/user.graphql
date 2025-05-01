@@ -4,10 +4,14 @@ extend type Mutation @guard {
         first_name: String
         profile_photo: Upload
         last_name: String
+        phone_number: String
         default_currency: String
         country: String
         state: String
         documents: [Upload!]
         business_name: String
+        business_logo: Upload
+        business_category: String
+        business_description: String
     ): Boolean! @field(resolver: "UserMutator@updateProfile")
 }

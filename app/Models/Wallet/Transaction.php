@@ -63,4 +63,12 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function pointTransaction(): mixed
+    {
+        $plainReference = str_replace("TO-", "", $this->reference);
+        return PointTransaction::query()
+            ->where("reference", "GRP_TO-" . $plainReference)
+            ->first();
+    }
 }

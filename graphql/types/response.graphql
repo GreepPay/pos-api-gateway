@@ -22,3 +22,8 @@ type ExchangeRateItem {
     code: String!
     updatedAt: String!
 }
+
+type FinancialSummaryResponse {
+    credit: Float!
+    debit: Float!
+}

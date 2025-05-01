@@ -11,11 +11,15 @@ extend type Mutation {
         first_name: String!
         last_name: String!
         email: String!
+        phone_number: String
         password: String!
         state: String!
         country: String!
         default_currency: String!
         business_name: String!
+        business_logo: Upload
+        business_category: String
+        business_description: String
         documents: [Upload!]!
     ): User! @field(resolver: "AuthMutator@signUp")
 

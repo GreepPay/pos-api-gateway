@@ -51,6 +51,9 @@ type Business {
     "Business website URL."
     website: String
 
+    "Business category."
+    category: String
+
     "Business resident permit document URL."
     resident_permit: String
 

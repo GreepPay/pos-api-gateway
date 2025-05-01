@@ -17,6 +17,8 @@ extend type Query @guard {
                     "amount"
                     "chargeable_type"
                     "reference"
+                    "created_at"
+                    "updated_at"
                 ]
             )
     ): [Transaction!]! @paginate @whereAuth(relation: "user")
@@ -33,6 +35,8 @@ extend type Query @guard {
                     "amount"
                     "chargeable_type"
                     "reference"
+                    "created_at"
+                    "updated_at"
                 ]
             )
     ): [PointTransaction!]! @paginate @whereAuth(relation: "user")

@@ -177,13 +177,15 @@ final class WalletQuery
         if ($currency == "TRY") {
             $withdrawInfo = [
                 "methods" => [
-                    "name" => "P2P Exchange",
-                    "description" =>
-                        "Pair to pair exchange via bank transfer and cash delivery",
-                    "fee" => "0.0",
-                    "min_amount" => 50.0,
-                    "max_amount" => 1000000.0,
-                    "unique_id" => "try_p2p",
+                    [
+                        "name" => "P2P Exchange",
+                        "description" =>
+                            "Pair to pair exchange via bank transfer and cash delivery",
+                        "fee" => "0.0",
+                        "min_amount" => 50.0,
+                        "max_amount" => 1000000.0,
+                        "unique_id" => "try_p2p",
+                    ],
                 ],
                 "currency" => "TRY",
             ];
@@ -240,8 +242,6 @@ final class WalletQuery
                     "unique_id" => $choice,
                 ];
             }
-
-            return $withdrawInfo;
         } elseif ($currency == "USDC") {
             $withdrawInfo = [
                 "methods" => [

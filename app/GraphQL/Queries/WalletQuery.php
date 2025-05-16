@@ -445,8 +445,8 @@ final class WalletQuery
                     ];
                 }
             }
-
-            return $withdrawInfo;
         }
+
+        return $withdrawInfo;
     }
 }

@@ -93,7 +93,7 @@ class WalletService
      * @param string $countryCode
      * @return mixed
      */
-    public function getOnRampChannelsByCountryCode(string $countryCode)
+    public function getOffRampChannelsByCountryCode(string $countryCode)
     {
         return $this->walletNetwork->get("/v1/onramp/channels/{$countryCode}");
     }
@@ -104,7 +104,7 @@ class WalletService
      * @param string $countryCode
      * @return mixed
      */
-    public function getOnRampNetworkByCountryCode(string $countryCode)
+    public function getOffRampNetworkByCountryCode(string $countryCode)
     {
         return $this->walletNetwork->get("/v1/onramp/networks/{$countryCode}");
     }

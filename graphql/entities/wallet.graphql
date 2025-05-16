@@ -69,6 +69,10 @@ extend type Query @guard {
         input: FinancialSummaryInput! @spread
     ): FinancialSummaryResponse!
         @field(resolver: "WalletQuery@getFinancialSummary")
+
+    "Get withdrawal info"
+    GetWithdrawInfo(amount: Float!, currency: String): WithdrawInfo!
+        @field(resolver: "WalletQuery@getWithdrawInfo")
 }
 
 extend type Mutation @guard {

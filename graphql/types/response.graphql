@@ -27,3 +27,17 @@ type FinancialSummaryResponse {
     credit: Float!
     debit: Float!
 }
+
+type WithdrawMethod {
+    name: String!
+    description: String
+    fee: String
+    min_amount: Float
+    max_amount: Float
+    unique_id: String
+}
+
+type WithdrawInfo {
+    methods: [WithdrawMethod!]!
+    currency: String
+}

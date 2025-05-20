@@ -46,6 +46,59 @@ final class WalletQuery
     }
 
     /**
+     * Get yellowcard networks by country
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     *
+     * @return array
+     */
+    public function getYellowCardNetwork($_, array $args): array
+    {
+        $allNetworks = $this->walletService->getOffRampNetworkByCountryCode(
+            $args["country_code"]
+        );
+
+        $allNetworks = $allNetworks["data"]["networks"];
+
+        $finalNetworks = [];
+
+        foreach ($allNetworks as $network) {
+            if ($network["status"] == "active") {
+                if (!is_string($network["code"])) {
+                    $network["code"] = json_encode($network["code"]);
+                    $network["hasBranch"] = true;
+                } else {
+                    $network["hasBranch"] = false;
+                }
+                $finalNetworks[] = $network;
+            }
+        }
+
+        return $finalNetworks;
+    }
+
+    /**
+     * Resolve bank account details
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     *
+     * @return string
+     */
+    public function getBankAccountDetails($_, array $args): string
+    {
+        $accountDetails = $this->walletService->resolveBankAccount([
+            "accountNumber" => $args["accountNumber"],
+            "networkId" => $args["networkId"],
+        ]);
+
+        $allNetworks = $accountDetails["data"];
+
+        return $allNetworks["accountName"];
+    }
+
+    /**
      * Get global exchange rate for a given currency pair.
      *
      * @param  mixed  $_

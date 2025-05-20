@@ -73,6 +73,17 @@ extend type Query @guard {
     "Get withdrawal info"
     GetWithdrawInfo(amount: Float!, currency: String): WithdrawInfo!
         @field(resolver: "WalletQuery@getWithdrawInfo")
+
+    "Get yellow card networks"
+    GetYellowCardNetwork(country_code: String!): [YellowcardNetwork!]!
+        @field(resolver: "WalletQuery@getYellowCardNetwork")
+
+    "Get bank account details"
+    GetBankAccountDetails(accountNumber: String!, networkId: String!): String!
+        @field(resolver: "WalletQuery@getBankAccountDetails")
+
+    "Get single offramp"
+    GetOfframp(uuid: String! @eq): OffRamp @first
 }
 
 extend type Mutation @guard {
@@ -81,7 +92,11 @@ extend type Mutation @guard {
         saved_account_uuid: String!
         amount: Float!
         withdrawal_currency: String!
-    ): Boolean! @field(resolver: "WalletMutator@initiateWithdrawal")
+    ): OffRamp @field(resolver: "WalletMutator@initiateWithdrawal")
+
+    "Confirm withdrawal"
+    ConfirmWithdrawal(uuid: String!): OffRamp
+        @field(resolver: "WalletMutator@confirmWithdrawal")
 
     "Redeem GRP tokens"
     RedeemGRPToken(grp_amount: Float!): Boolean!

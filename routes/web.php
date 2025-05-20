@@ -1,5 +1,7 @@
 <?php
 
+use App\GraphQL\Queries\WalletQuery;
+use App\Services\WalletService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIDocController;
 
@@ -26,5 +28,10 @@ Route::get("/service-swagger-doc/{serviceName}", [
 ]);
 
 Route::get("/", function () {
+    $walletService = new WalletService();
+
+    return $walletService->acceptPaymentSettlement("318bf9cc-74eb-55be-a98d-6ced29054162
+");
+
     return view("welcome");
 });

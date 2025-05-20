@@ -18,7 +18,7 @@ class WalletService
      * @return mixed
      */
     public function __construct(
-        bool $useCache = true,
+        bool $useCache = false,
         array $headers = [],
         string $apiType = "graphql"
     ) {
@@ -130,7 +130,7 @@ class WalletService
      */
     public function getPaymentSettlement($id)
     {
-        return $this->walletNetwork->get("/v1/offramp/settlement/{$id}");
+        return $this->walletNetwork->get("/v1/offramp/{$id}");
     }
 
     /**
@@ -156,7 +156,11 @@ class WalletService
      */
     public function acceptPaymentSettlement($id)
     {
-        return $this->walletNetwork->post("/v1/offramp/accept/{$id}", []);
+        return $this->walletNetwork->post(
+            "/v1/offramp/accept/{$id}",
+            [],
+            false
+        );
     }
 
     /**

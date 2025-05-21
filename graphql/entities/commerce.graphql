@@ -21,6 +21,7 @@ input PriceInput {
   currency: String!
 }
 
+
 input AddProductInput {
   product_uuid: String!
   cover_photo: Upload

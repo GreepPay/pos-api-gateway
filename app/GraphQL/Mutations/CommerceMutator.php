@@ -54,19 +54,8 @@ class ShopMutator
         
         return $response['success'] ?? false;
     }
-}
-
-class ProductMutator
-{
-    use FileUploadTrait;
-
-    protected CommerceService $commerceService;
-
-    public function __construct()
-    {
-        $this->commerceService = new CommerceService();
-    }
-
+    
+    
     /**
      * Add a new product with variants and inventory
      *
@@ -121,3 +110,4 @@ class ProductMutator
         return $response['success'] ?? false;
     }
 }
+

@@ -1,0 +1,605 @@
+"A product in the commerce system"
+type Product {
+    "Unique identifier"
+    id: ID!
+
+    "Business that owns the product"
+    business: Business! @belongsTo
+
+    "Stock keeping unit"
+    sku: String!
+
+    "Product name"
+    name: String!
+
+    "Product slug"
+    slug: String!
+
+    "Product description"
+    description: String!
+
+    "Product price"
+    price: Float!
+
+    "Currency code"
+    currency: String!
+
+    "Tax code"
+    tax_code: String
+
+    "Product type"
+    type: ProductType!
+
+    "Product status"
+    status: ProductStatus!
+
+    "Product variants"
+    variants: [ProductVariant!]!
+
+    "Inventory count"
+    inventory_count: Int
+
+    "Stock threshold"
+    stock_threshold: Int
+
+    "Whether backorders are allowed"
+    is_backorder_allowed: Boolean!
+
+    "Download URL (for digital products)"
+    download_url: String
+
+    "Download limit (for digital products)"
+    download_limit: Int
+
+    "Physical dimensions"
+    dimensions: ProductDimensions
+
+    "Physical weight"
+    weight: Float
+
+    "Billing interval (for subscriptions)"
+    billing_interval: BillingInterval
+
+    "Trial period days (for subscriptions)"
+    trial_period_days: Int
+
+    "Event type (for event products)"
+    event_type: EventType
+
+    "Event start date (for event products)"
+    event_start_date: DateTime
+
+    "Event end date (for event products)"
+    event_end_date: DateTime
+
+    "Venue name (for event products)"
+    venue_name: String
+
+    "Online URL (for online/hybrid events)"
+    event_online_url: String
+
+    "Event location details"
+    event_location: EventLocation
+
+    "Event capacity"
+    event_capacity: Int
+
+    "Number of registered attendees"
+    event_registered_count: Int!
+
+    "Whether waitlist is enabled"
+    event_waitlist_enabled: Boolean!
+
+    "Product categories"
+    categories: [Category!]! @belongsToMany
+
+    "Related products"
+    related_products: [Product!]! @belongsToMany
+
+    "Meta title for SEO"
+    meta_title: String
+
+    "Meta description for SEO"
+    meta_description: String
+
+    "Whether product is visible"
+    is_visible: Boolean!
+
+    "Product images"
+    images: [ProductImage!]!
+
+    "Created at timestamp"
+    created_at: DateTime!
+
+    "Updated at timestamp"
+    updated_at: DateTime!
+}
+
+"Product variant details"
+type ProductVariant {
+    "Variant ID"
+    id: String!
+
+    "Variant name"
+    name: String!
+
+    "Variant options"
+    options: [VariantOption!]!
+
+    "Variant price"
+    price: Float!
+
+    "Variant SKU"
+    sku: String!
+
+    "Inventory count"
+    inventory: Int
+
+    "Whether variant is available"
+    available: Boolean!
+}
+
+"Variant option"
+type VariantOption {
+    "Option name"
+    name: String!
+
+    "Option value"
+    value: String!
+}
+
+"Product dimensions"
+type ProductDimensions {
+    "Length"
+    length: Float!
+
+    "Width"
+    width: Float!
+
+    "Height"
+    height: Float!
+}
+
+"Event location details"
+type EventLocation {
+    "Address"
+    address: String!
+
+    "City"
+    city: String!
+
+    "State"
+    state: String
+
+    "Country"
+    country: String!
+
+    "Postal code"
+    postal_code: String
+
+    "Coordinates"
+    coordinates: Coordinates
+}
+
+"Geographic coordinates"
+type Coordinates {
+    "Latitude"
+    lat: Float!
+
+    "Longitude"
+    lng: Float!
+}
+
+"Product image"
+type ProductImage {
+    "Image URL"
+    url: String!
+
+    "Alt text"
+    alt_text: String!
+
+    "Whether this is the primary image"
+    is_primary: Boolean!
+}
+
+enum ProductType {
+    PHYSICAL
+    DIGITAL
+    SUBSCRIPTION
+    EVENT
+}
+
+enum ProductStatus {
+    DRAFT
+    ACTIVE
+    ARCHIVED
+    DISCONTINUED
+    OUT_OF_STOCK
+}
+
+enum EventType {
+    ONLINE
+    OFFLINE
+    HYBRID
+}
+
+enum BillingInterval {
+    MONTHLY
+    YEARLY
+}
+
+
+
+
+
+"An order in the commerce system"
+type Order {
+    "Unique identifier"
+    id: ID!
+
+    "Order number"
+    order_number: String!
+
+    "Customer who placed the order"
+    customer: User! @belongsTo
+
+    "Associated sale"
+    sale: Sale! @belongsTo
+
+    "Order items"
+    items: [OrderItem!]!
+
+    "Subtotal amount"
+    subtotal_amount: Float!
+
+    "Tax amount"
+    tax_amount: Float!
+
+    "Discount amount"
+    discount_amount: Float!
+
+    "Total amount"
+    total_amount: Float!
+
+    "Currency code"
+    currency: String!
+
+    "Order status"
+    status: OrderStatus!
+
+    "Shipping address"
+    shipping_address: String
+
+    "Billing address"
+    billing_address: String
+
+    "Payment method"
+    payment_method: String
+
+    "Payment status"
+    payment_status: PaymentStatus!
+
+    "Payment details"
+    payment_details: PaymentDetails
+
+    "Applied discounts"
+    applied_discounts: [AppliedDiscount!]
+
+    "Tax details"
+    tax_details: [TaxDetail!]
+
+    "Refund details"
+    refund_details: RefundDetails
+
+    "Delivery information"
+    deliveries: [Delivery!]! @hasMany
+
+    "Status history"
+    status_history: [StatusHistory!]!
+
+    "Created at timestamp"
+    created_at: DateTime!
+
+    "Updated at timestamp"
+    updated_at: DateTime!
+}
+
+"An item in an order"
+type OrderItem {
+    "Product details"
+    product: Product!
+
+    "Quantity ordered"
+    quantity: Int!
+
+    "Price per unit"
+    price: Float!
+
+    "Tax rate"
+    tax_rate: Float!
+
+    "Tax amount"
+    tax_amount: Float!
+
+    "Discount amount"
+    discount_amount: Float!
+
+    "Total amount for this item"
+    total: Float!
+}
+
+"Payment details"
+type PaymentDetails {
+    "Transaction ID"
+    transaction_id: String!
+
+    "Payment provider"
+    provider: String!
+
+    "Payment method"
+    method: String!
+
+    "Amount paid"
+    amount: Float!
+
+    "Currency"
+    currency: String!
+
+    "Payment status"
+    status: String!
+
+    "Timestamp of payment"
+    timestamp: DateTime!
+}
+
+"Applied discount information"
+type AppliedDiscount {
+    "Discount code"
+    code: String!
+
+    "Discount type"
+    type: DiscountType!
+
+    "Discount value"
+    value: Float!
+
+    "Discount description"
+    description: String!
+}
+
+"Tax detail information"
+type TaxDetail {
+    "Tax type"
+    type: String!
+
+    "Tax rate"
+    rate: Float!
+
+    "Tax amount"
+    amount: Float!
+
+    "Tax description"
+    description: String!
+}
+
+"Refund details"
+type RefundDetails {
+    "Transaction ID"
+    transaction_id: String!
+
+    "Refund amount"
+    amount: Float!
+
+    "Refund reason"
+    reason: String!
+
+    "Refund status"
+    status: String!
+
+    "Timestamp of refund"
+    timestamp: DateTime!
+}
+
+"Status history entry"
+type StatusHistory {
+    "Order status"
+    status: OrderStatus!
+
+    "Timestamp of status change"
+    timestamp: DateTime!
+
+    "Optional note"
+    note: String
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+    REFUNDED
+}
+
+enum PaymentStatus {
+    PENDING
+    AUTHORIZED
+    PAID
+    FAILED
+    REFUNDED
+    PARTIALLY_REFUNDED
+}
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+}
+
+
+
+
+type Sale {
+    id: ID!
+    transaction_id: String!
+    customer: Customer! @belongsTo
+    subtotal_amount: Float!
+    tax_amount: Float!
+    discount_amount: Float!
+    total_amount: Float!
+    currency: String!
+    status: SaleStatus!
+    items: [SaleItem!]!
+    applied_discounts: [AppliedDiscount!]
+    tax_details: [TaxDetail!]
+    payment_details: PaymentDetails!
+    refund_details: [RefundDetail!]
+    metadata: JSON
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type SaleItem {
+    product_id: String!
+    sku: String!
+    name: String!
+    quantity: Int!
+    unit_price: Float!
+    subtotal: Float!
+    tax_rate: Float!
+    tax_amount: Float!
+    variant_id: String
+    discount_amount: Float!
+    total: Float!
+}
+
+type PaymentDetails {
+    method: PaymentMethod!
+    transaction_date: DateTime!
+    provider: String
+    last_four_digits: String
+    receipt_number: String
+}
+
+type RefundDetail {
+    transaction_id: String!
+    amount: Float!
+    reason: String!
+    status: RefundStatus!
+    refund_date: DateTime!
+    notes: String
+}
+
+enum SaleStatus {
+    PENDING
+    COMPLETED
+    REFUNDED
+    PARTIALLY_REFUNDED
+    CANCELLED
+}
+
+enum PaymentMethod {
+    CREDIT_CARD
+    DEBIT_CARD
+    BANK_TRANSFER
+    DIGITAL_WALLET
+    CASH
+}
+
+enum RefundStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
+
+
+
+type Ticket {
+    id: ID!
+    product: Product! @belongsTo
+    variant_id: String
+    sale: Sale @belongsTo
+    user_id: String!
+    ticket_type: String!
+    price: Float!
+    qr_code: String!
+    status: TicketStatus!
+    created_at: DateTime!
+}
+
+enum TicketStatus {
+    ACTIVE
+    USED
+    CANCELLED
+    EXPIRED
+    PENDING
+}
+
+
+"A product category in the commerce system"
+type Category {
+    "Unique identifier for the category"
+    id: ID!
+
+    "Name of the category"
+    name: String!
+
+    "URL-friendly slug (unique)"
+    slug: String!
+
+    "Products belonging to this category"
+    products: [Product!]! @hasMany
+
+    "When the category was created"
+    created_at: DateTime!
+
+    "When the category was last updated"
+    updated_at: DateTime!
+}
+
+type Delivery {
+    id: ID!
+    order: Order! @belongsTo
+    tracking_number: String!
+    status: String!
+    estimated_delivery_date: DateTime!
+    actual_delivery_date: DateTime
+    delivery_address: String!
+    metadata: JSON
+    tracking_updates: [TrackingUpdate!]
+    delivery_attempts: [DeliveryAttempt!]
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type TrackingUpdate {
+    timestamp: DateTime!
+    status: String!
+    location: String
+}
+
+type DeliveryAttempt {
+    attempt_date: DateTime!
+    status: String!
+    notes: String
+}
+
+
+
+type Customer {
+    id: ID!
+    first_name: String!
+    last_name: String!
+    email: String!
+    phone_number: String
+    address: String
+    city: String
+    state: String
+    zip_code: String
+    country: String
+    orders: [Order!]! @hasMany
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+

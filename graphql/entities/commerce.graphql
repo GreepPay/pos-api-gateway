@@ -1,0 +1,61 @@
+input DayScheduleInput {
+  day: String!
+  open: Boolean!
+  from: String
+  to: String
+}
+
+input ShopSettingInput {
+  cover_image: Upload!
+  schedule: [DayScheduleInput!]!
+}
+
+input VariantInput {
+  type: String!
+  value: String!
+  attribute: String
+}
+
+input PriceInput {
+  price: Float!
+  currency: String!
+}
+
+input AddProductInput {
+  product_uuid: String!
+  cover_photo: Upload
+  name: String!
+  category: String!
+  description: String!
+  variants: [VariantInput!]!
+  stock: Int!
+  prices: [PriceInput!]!
+}
+
+
+extend type Query @guard {
+  "Get a paginated list of products for the authenticated user"
+  GetProducts: [Product!]! @paginate @whereAuth(relation: "user")
+
+  "Get a paginated list of orders for the authenticated user, including order details"
+  GetOrders: [Order!]! @paginate @whereAuth(relation: "user") @with(relation: "orderDetails")
+
+  "Get a single product by UUID"
+   GetProduct(uuid: String! @eq): Product @first
+   
+   "Get a single order by ID" 
+   GetOrder(id: ID! @eq): Order @first
+}
+
+
+
+extend type Mutation @guard {
+  "Setup shop with cover photo and weekly schedule"
+  SetupShop(input: ShopSettingInput!): Boolean
+    @field(resolver: "ShopMutator@setupShop")
+
+  "Add a new product with variants and inventory"
+  AddProduct(input: AddProductInput!): Boolean
+    @field(resolver: "ProductMutator@addProduct")
+}
+

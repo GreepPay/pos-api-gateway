@@ -312,7 +312,7 @@ final class WalletQuery
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdc_eth",
+                        "unique_id" => "usdc_ethereum",
                     ],
                     [
                         "name" => "Polygon",
@@ -344,7 +344,7 @@ final class WalletQuery
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdc_avalanche",
+                        "unique_id" => "usdc_avalanche_c_chain",
                     ],
                     [
                         "name" => "Optimism",
@@ -374,7 +374,7 @@ final class WalletQuery
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdt_eth",
+                        "unique_id" => "usdt_ethereum",
                     ],
                     [
                         "name" => "Tron",

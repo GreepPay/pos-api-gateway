@@ -28,10 +28,5 @@ Route::get("/service-swagger-doc/{serviceName}", [
 ]);
 
 Route::get("/", function () {
-    $walletService = new WalletService();
-
-    return $walletService->acceptPaymentSettlement("318bf9cc-74eb-55be-a98d-6ced29054162
-");
-
     return view("welcome");
 });

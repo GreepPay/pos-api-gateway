@@ -5,6 +5,7 @@ use App\Exceptions\GraphQLException;
 use App\Models\Wallet\OffRamp;
 use App\Models\Wallet\UserBank;
 use App\Services\BlockchainService;
+use App\Services\OfframpService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -15,11 +16,13 @@ final class WalletMutator
 {
     protected WalletService $walletService;
     protected BlockchainService $blockchainService;
+    protected OfframpService $offrampService;
 
     public function __construct()
     {
         $this->walletService = new WalletService();
         $this->blockchainService = new BlockchainService();
+        $this->offrampService = new OfframpService();
     }
 
     /**
@@ -121,6 +124,60 @@ final class WalletMutator
         return null;
     }
 
+    public function initiateWalletKYC($_, array $args)
+    {
+        $authUser = Auth::user();
+
+        $wallet = $authUser->wallet;
+
+        $currency = $args["currency"];
+
+        if ($currency == "EUR") {
+            // Get user kyc details from anchor
+            $accountSecret = $this->blockchainService->getAccountSecret(
+                $wallet->blockchain_account_id
+            )["data"];
+
+            $userKYCStatus = $this->offrampService->getKycStatus([
+                "slug" => "mykobo",
+                "account" => $accountSecret,
+            ]);
+
+            $userKYCStatus["provider"] = "mykobo";
+
+            return json_encode($userKYCStatus);
+        }
+
+        $bridgeCurrencies = [
+            "USD",
+            "USDC",
+            "XLM",
+            "EURC",
+            "USDT",
+            "BTC",
+            "ETH",
+        ];
+
+        if (in_array($currency, $bridgeCurrencies)) {
+            $kycLinkResponse = $this->walletService->createBridgeKyc(
+                $wallet->id,
+                [
+                    "full_name" => $authUser->profile->business->business_name,
+                    "email" => $authUser->email,
+                    "type" => "business",
+                ]
+            );
+
+            $kycLinkResponse = $kycLinkResponse["data"];
+
+            $kycLinkResponse["provider"] = "bridge";
+
+            return json_encode($kycLinkResponse);
+        }
+
+        return null;
+    }
+
     public function confirmWithdrawal($_, array $args)
     {
         $offramp = OffRamp::query()->where("uuid", $args["uuid"])->first();
@@ -186,6 +243,33 @@ final class WalletMutator
         $authUser = Auth::user();
 
         $userWallet = $authUser->wallet;
+
+        $metadata = json_decode($args["metadata"], true);
+
+        if ($args["type"] == "bank_account") {
+            if ($metadata["country"] == "US") {
+                // Save account as external account on Bridge
+                $externalAccount = $this->walletService->createBridgeExternalAccount(
+                    [
+                        "type" => "raw",
+                        "bank_name" => $metadata["bank_name"],
+                        "account_number" => $metadata["account_number"],
+                        "routing_number" => $metadata["routing_number"],
+                        "account_owner_name" =>
+                            $metadata["account_holder_name"],
+                        "active" => true,
+                        "address" => $metadata["address"],
+                    ],
+                    "external_account_{$userWallet->id}"
+                );
+
+                $externalAccount = $externalAccount["data"];
+
+                $metadata["bridge_account_id"] = $externalAccount["id"];
+
+                $args["metadata"] = json_encode($metadata);
+            }
+        }
 
         $newAccount = $this->walletService->createSavedBankAccount([
             "user_id" => $authUser->id,

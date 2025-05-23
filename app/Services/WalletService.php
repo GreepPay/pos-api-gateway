@@ -251,4 +251,734 @@ class WalletService
             "/v1/global-exchange-rates?base={$base}&target={$target}"
         );
     }
+
+    // Bridge API
+    /**
+     * Get bridge customers
+     * @return mixed
+     */
+    public function getBridgeCustomers()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get("/v1/bridge/customers", "", false);
+    }
+
+    /**
+     * Create bridge customer
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomer(array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge customer by ID
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomer(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Update bridge customer by ID
+     * @param string $customerID
+     * @param array $data
+     * @return mixed
+     */
+    public function updateBridgeCustomer(string $customerID, array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->put(
+            "/{$appVersion}/bridge/customers/{$customerID}",
+            $data
+        );
+    }
+
+    /**
+     * Delete bridge customer by ID
+     * @param string $customerID
+     * @return mixed
+     */
+    public function deleteBridgeCustomer(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->delete(
+            "/{$appVersion}/bridge/customers/{$customerID}"
+        );
+    }
+
+    /**
+     * Get bridge customer TOS
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerTos(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/tos",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge customer KYC
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerKyc(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/kyc",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge TOS
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeTos(array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post("/{$appVersion}/bridge/tos", $data);
+    }
+
+    /**
+     * Get bridge customer transfers
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerTransfers(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/transfers",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge transfer
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeTransfer(array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/transfers",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge transfer by ID
+     * @param string $transferID
+     * @return mixed
+     */
+    public function getBridgeTransfer(string $transferID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/transfers/{$transferID}",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Update bridge transfer by ID
+     * @param string $transferID
+     * @param array $data
+     * @return mixed
+     */
+    public function updateBridgeTransfer(string $transferID, array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->put(
+            "/{$appVersion}/bridge/transfers/{$transferID}",
+            $data
+        );
+    }
+
+    /**
+     * Delete bridge transfer by ID
+     * @param string $transferID
+     * @return mixed
+     */
+    public function deleteBridgeTransfer(string $transferID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->delete(
+            "/{$appVersion}/bridge/transfers/{$transferID}"
+        );
+    }
+
+    /**
+     * Get bridge customer external accounts
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerExternalAccounts(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer external account
+     * @param string $customerID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerExternalAccount(
+        string $customerID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts",
+            $data
+        );
+    }
+
+    /**
+     * Update bridge customer external account by ID
+     * @param string $customerID
+     * @param string $externalAccountID
+     * @param array $data
+     * @return mixed
+     */
+    public function updateBridgeCustomerExternalAccount(
+        string $customerID,
+        string $externalAccountID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->put(
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts/{$externalAccountID}",
+            $data
+        );
+    }
+
+    /**
+     * Delete bridge customer external account by ID
+     * @param string $customerID
+     * @param string $externalAccountID
+     * @return mixed
+     */
+    public function deleteBridgeCustomerExternalAccount(
+        string $customerID,
+        string $externalAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->delete(
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts/{$externalAccountID}"
+        );
+    }
+
+    /**
+     * Reactivate bridge customer external account by ID
+     * @param string $customerID
+     * @param string $externalAccountID
+     * @return mixed
+     */
+    public function reactivateBridgeCustomerExternalAccount(
+        string $customerID,
+        string $externalAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts/{$externalAccountID}/reactivate",
+            []
+        );
+    }
+
+    /**
+     * Get bridge fees
+     * @return mixed
+     */
+    public function getBridgeFees()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/fees",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Update bridge fees
+     * @param array $data
+     * @return mixed
+     */
+    public function updateBridgeFees(array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->put("/{$appVersion}/bridge/fees", $data);
+    }
+
+    /**
+     * Get bridge external account
+     * @return mixed
+     */
+    public function getBridgeExternalAccount()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/external-account",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge external account
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeExternalAccount(
+        array $data,
+        string $idempotencyKey
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/external-account?idempotencyKey={$idempotencyKey}",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge customer card accounts
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccounts(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer card account
+     * @param string $customerID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerCardAccount(
+        string $customerID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts",
+            $data
+        );
+    }
+
+    /**
+     * Freeze bridge customer card account by ID
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function freezeBridgeCustomerCardAccount(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/freeze",
+            []
+        );
+    }
+
+    /**
+     * Unfreeze bridge customer card account by ID
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function unfreezeBridgeCustomerCardAccount(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/unfreeze",
+            []
+        );
+    }
+
+    /**
+     * Get bridge customer card account by ID
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccount(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer card account wallet provisioning
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerCardAccountWalletProvisioning(
+        string $customerID,
+        string $cardAccountID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/wallet-provisioning",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge customer card account authorizations
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccountAuthorizations(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/authorizations",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge customer card account transactions
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccountTransactions(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/transactions",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer card account withdrawal
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerCardAccountWithdrawal(
+        string $customerID,
+        string $cardAccountID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/withdrawals",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge customer card account withdrawal by ID
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @param string $withdrawalID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccountWithdrawal(
+        string $customerID,
+        string $cardAccountID,
+        string $withdrawalID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/withdrawals/{$withdrawalID}",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge customer card account withdrawals
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @return mixed
+     */
+    public function getBridgeCustomerCardAccountWithdrawals(
+        string $customerID,
+        string $cardAccountID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/withdrawals",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer card account statement
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerCardAccountStatement(
+        string $customerID,
+        string $cardAccountID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/statements",
+            $data
+        );
+    }
+
+    /**
+     * Create bridge customer card account pin update
+     * @param string $customerID
+     * @param string $cardAccountID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerCardAccountPinUpdate(
+        string $customerID,
+        string $cardAccountID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/pin-update",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge wallets
+     * @return mixed
+     */
+    public function getBridgeWallets()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get("/{$appVersion}/bridge/wallets");
+    }
+
+    /**
+     * Get bridge wallets balances
+     * @return mixed
+     */
+    public function getBridgeWalletsBalances()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/wallets/balances",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge wallet transactions
+     * @param string $bridgeWalletID
+     * @return mixed
+     */
+    public function getBridgeWalletTransactions(string $bridgeWalletID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/wallets/{$bridgeWalletID}/transactions",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge customer wallets
+     * @param string $customerID
+     * @return mixed
+     */
+    public function getBridgeCustomerWallets(string $customerID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/wallets",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer wallet
+     * @param string $customerID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerWallet(string $customerID, array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/wallets",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge customer wallet
+     * @param string $customerID
+     * @param string $bridgeWalletID
+     * @return mixed
+     */
+    public function getBridgeCustomerWallet(
+        string $customerID,
+        string $bridgeWalletID
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/customers/{$customerID}/wallets/{$bridgeWalletID}",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Create bridge customer batch settlement schedule
+     * @param string $customerID
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeCustomerBatchSettlementSchedule(
+        string $customerID,
+        array $data
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/customers/{$customerID}/batch-settlement-schedule",
+            $data
+        );
+    }
+
+    /**
+     * Create bridge kyc
+     * @param string $walletId
+     * @param array $data
+     * @return mixed
+     */
+    public function createBridgeKyc(string $walletId, array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/kyc/{$walletId}",
+            $data
+        );
+    }
+
+    /**
+     * Get bridge kyc status
+     * @param string $kycLinkID
+     * @return mixed
+     */
+    public function getBridgeKycStatus(string $kycLinkID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/kyc/{$kycLinkID}/status",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Get bridge webhooks
+     * @return mixed
+     */
+    public function getBridgeWebhooks()
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->get(
+            "/{$appVersion}/bridge/webhooks",
+            "",
+            false
+        );
+    }
+
+    /**
+     * Update bridge webhook
+     * @param string $webhookID
+     * @param array $data
+     * @return mixed
+     */
+    public function updateBridgeWebhook(string $webhookID, array $data)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->put(
+            "/{$appVersion}/bridge/webhooks/{$webhookID}",
+            $data
+        );
+    }
+
+    /**
+     * Delete bridge webhook
+     * @param string $webhookID
+     * @return mixed
+     */
+    public function deleteBridgeWebhook(string $webhookID)
+    {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->delete(
+            "/{$appVersion}/bridge/webhooks/{$webhookID}"
+        );
+    }
 }

@@ -17,7 +17,7 @@ class BlockchainService
      * @param string $apiType The type of API to use.
      */
     public function __construct(
-        $useCache = true,
+        $useCache = false,
         $headers = [],
         $apiType = "graphql"
     ) {
@@ -60,6 +60,20 @@ class BlockchainService
         return $this->blockchainNetwork->post("/v1/accounts/activate", [
             "account_id" => $accountId,
         ]);
+    }
+    /**
+     * Get an account secret from the blockchain.
+     *
+     * @param string $accountId The ID of the account.
+     * @return mixed The response from the blockchain network.
+     */
+    public function getAccountSecret(string $accountId)
+    {
+        return $this->blockchainNetwork->get(
+            "/v1/accounts/secret/{$accountId}",
+            "",
+            false
+        );
     }
 
     /**

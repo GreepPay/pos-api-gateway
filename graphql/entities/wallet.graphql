@@ -94,6 +94,10 @@ extend type Mutation @guard {
         withdrawal_currency: String!
     ): OffRamp @field(resolver: "WalletMutator@initiateWithdrawal")
 
+    "Initiate wallet KYC"
+    InitiateWalletKYC(currency: String!): String
+        @field(resolver: "WalletMutator@initiateWalletKYC")
+
     "Confirm withdrawal"
     ConfirmWithdrawal(uuid: String!): OffRamp
         @field(resolver: "WalletMutator@confirmWithdrawal")

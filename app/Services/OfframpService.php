@@ -42,7 +42,7 @@ class OfframpService
      */
     public function getKycStatus(array $request = [])
     {
-        return $this->offrampNetwork->get("/v1/kyc/customer", $request);
+        return $this->offrampNetwork->post("/v1/kyc/get-customer", $request);
     }
 
     /**

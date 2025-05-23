@@ -83,7 +83,7 @@ final class WalletMutator
 
             // Check if user can afford it
 
-            if ($amountToSendInUSD > $walletBalance) {
+            if ($amountInUSD > $walletBalance) {
                 throw new GraphQLException("Insufficient funds");
             }
 

@@ -268,11 +268,11 @@ class WalletService
      * @param array $data
      * @return mixed
      */
-    public function createBridgeCustomer(array $data)
+    public function createBridgeCustomer(array $data, string $idempotencyKey)
     {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers",
+            "/{$appVersion}/bridge/customers?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -355,10 +355,13 @@ class WalletService
      * @param array $data
      * @return mixed
      */
-    public function createBridgeTos(array $data)
+    public function createBridgeTos(array $data, string $idempotencyKey)
     {
         $appVersion = env("APP_VERSION", "v1");
-        return $this->walletNetwork->post("/{$appVersion}/bridge/tos", $data);
+        return $this->walletNetwork->post(
+            "/{$appVersion}/bridge/tos?idempotencyKey={$idempotencyKey}",
+            $data
+        );
     }
 
     /**
@@ -381,11 +384,33 @@ class WalletService
      * @param array $data
      * @return mixed
      */
-    public function createBridgeTransfer(array $data)
-    {
+    public function createBridgeTransfer(
+        array $data,
+        $wallet_id,
+        $user_id,
+        string $idempotencyKey
+    ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/transfers",
+            "/{$appVersion}/bridge/transfers/{$wallet_id}/{$user_id}?idempotencyKey={$idempotencyKey}",
+            $data
+        );
+    }
+
+    /**
+     * Create offramp
+     * @param array $data
+     * @return mixed
+     */
+    public function createOfframp(
+        array $data,
+        $wallet_id,
+        $user_id,
+        string $idempotencyKey
+    ) {
+        $appVersion = env("APP_VERSION", "v1");
+        return $this->walletNetwork->post(
+            "/{$appVersion}/create/offramp/{$wallet_id}/{$user_id}?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -456,11 +481,12 @@ class WalletService
      */
     public function createBridgeCustomerExternalAccount(
         string $customerID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts",
+            "/{$appVersion}/bridge/customers/{$customerID}/external-accounts?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -595,11 +621,12 @@ class WalletService
      */
     public function createBridgeCustomerCardAccount(
         string $customerID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts",
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -666,11 +693,12 @@ class WalletService
     public function createBridgeCustomerCardAccountWalletProvisioning(
         string $customerID,
         string $cardAccountID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/wallet-provisioning",
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/wallet-provisioning?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -721,11 +749,12 @@ class WalletService
     public function createBridgeCustomerCardAccountWithdrawal(
         string $customerID,
         string $cardAccountID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/withdrawals",
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/withdrawals?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -778,11 +807,12 @@ class WalletService
     public function createBridgeCustomerCardAccountStatement(
         string $customerID,
         string $cardAccountID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/statements",
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/statements?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -797,11 +827,12 @@ class WalletService
     public function createBridgeCustomerCardAccountPinUpdate(
         string $customerID,
         string $cardAccountID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/pin-update",
+            "/{$appVersion}/bridge/customers/{$customerID}/card-accounts/{$cardAccountID}/pin-update?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -866,11 +897,14 @@ class WalletService
      * @param array $data
      * @return mixed
      */
-    public function createBridgeCustomerWallet(string $customerID, array $data)
-    {
+    public function createBridgeCustomerWallet(
+        string $customerID,
+        array $data,
+        string $idempotencyKey
+    ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/wallets",
+            "/{$appVersion}/bridge/customers/{$customerID}/wallets?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -901,11 +935,12 @@ class WalletService
      */
     public function createBridgeCustomerBatchSettlementSchedule(
         string $customerID,
-        array $data
+        array $data,
+        string $idempotencyKey
     ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/customers/{$customerID}/batch-settlement-schedule",
+            "/{$appVersion}/bridge/customers/{$customerID}/batch-settlement-schedule?idempotencyKey={$idempotencyKey}",
             $data
         );
     }
@@ -916,11 +951,14 @@ class WalletService
      * @param array $data
      * @return mixed
      */
-    public function createBridgeKyc(string $walletId, array $data)
-    {
+    public function createBridgeKyc(
+        string $walletId,
+        array $data,
+        string $idempotencyKey
+    ) {
         $appVersion = env("APP_VERSION", "v1");
         return $this->walletNetwork->post(
-            "/{$appVersion}/bridge/kyc/{$walletId}",
+            "/{$appVersion}/bridge/kyc/{$walletId}?idempotencyKey={$idempotencyKey}",
             $data
         );
     }

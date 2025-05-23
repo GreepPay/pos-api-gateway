@@ -298,14 +298,14 @@ final class WalletQuery
         } elseif ($currency == "USDC") {
             $withdrawInfo = [
                 "methods" => [
-                    [
-                        "name" => "Stellar",
-                        "description" => "Withdraw USDC via Stellar network",
-                        "fee" => "0.0",
-                        "min_amount" => 5.0,
-                        "max_amount" => 10000.0,
-                        "unique_id" => "usdc_stellar",
-                    ],
+                    // [
+                    //     "name" => "Stellar",
+                    //     "description" => "Withdraw USDC via Stellar network",
+                    //     "fee" => "0.0",
+                    //     "min_amount" => 5.0,
+                    //     "max_amount" => 10000.0,
+                    //     "unique_id" => "usdc_stellar",
+                    // ],
                     [
                         "name" => "ETH",
                         "description" => "Withdraw USDC via Ethereum network",

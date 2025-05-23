@@ -99,8 +99,12 @@ extend type Mutation @guard {
         @field(resolver: "WalletMutator@initiateWalletKYC")
 
     "Confirm withdrawal"
-    ConfirmWithdrawal(uuid: String!): OffRamp
-        @field(resolver: "WalletMutator@confirmWithdrawal")
+    ConfirmWithdrawal(
+        uuid: String!
+        currency: String!
+        amount: Float!
+        metadata: String
+    ): OffRamp @field(resolver: "WalletMutator@confirmWithdrawal")
 
     "Redeem GRP tokens"
     RedeemGRPToken(grp_amount: Float!): Boolean!

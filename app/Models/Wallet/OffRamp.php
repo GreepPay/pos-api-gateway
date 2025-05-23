@@ -78,8 +78,12 @@ class OffRamp extends Model
 
     public function yellowCardPayment()
     {
-        $walletService = new WalletService();
+        if ($this->gateway == "yellowcard") {
+            $walletService = new WalletService();
 
-        return $walletService->getPaymentSettlement($this->uuid)["data"];
+            return $walletService->getPaymentSettlement($this->uuid)["data"];
+        } else {
+            return null;
+        }
     }
 }

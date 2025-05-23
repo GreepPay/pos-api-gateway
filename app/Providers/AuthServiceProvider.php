@@ -37,8 +37,15 @@ class AuthServiceProvider extends ServiceProvider
                         return null;
                     }
 
-                    $authService = new AuthService();
-                    $response = $authService->authUser();
+                    $cacheKey = "auth_user_" . $token;
+                    $response = cache()->remember(
+                        $cacheKey,
+                        now()->addMinutes(60),
+                        function () use ($token) {
+                            $authService = new AuthService();
+                            return $authService->authUser();
+                        }
+                    );
 
                     if (!$response || empty($response["data"])) {
                         return null;

@@ -8,6 +8,7 @@ use App\Services\BlockchainService;
 use App\Services\OfframpService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Auth\User;
@@ -51,77 +52,112 @@ final class WalletMutator
     {
         $authUser = Auth::user();
 
-        $yellowCardCurrencies = ["NGN", "GHS", "KES", "ZAR"];
+        return Cache::lock("payment_" . $authUser->uuid)->get(function () use (
+            $authUser,
+            $args
+        ) {
+            $yellowCardCurrencies = ["NGN", "GHS", "KES", "ZAR"];
 
-        $currency = $args["withdrawal_currency"];
+            $currency = $args["withdrawal_currency"];
 
-        if (in_array($currency, $yellowCardCurrencies)) {
-            $savedAccount = UserBank::query()
-                ->where("uuid", $args["saved_account_uuid"])
-                ->first();
+            $userWallet = $authUser->wallet;
 
-            if (!$savedAccount) {
-                throw new GraphQLException("Saved account not found");
-            }
+            $amountInUSD = 0;
 
-            $withdrawaReference = Str::random(16);
+            if ($currency != "USD") {
+                $globalExchangeRate = $this->walletService->getGlobalExchangeRate(
+                    "USD",
+                    $currency
+                );
 
-            $accountMetadata = json_decode($savedAccount->meta_data, true);
+                $globalExchangeRate = $globalExchangeRate["data"];
 
-            $accountType = "bank";
+                $midRate = $globalExchangeRate["mid"];
 
-            if ($savedAccount->bank_code == "bank_account") {
-                $accountType = "bank";
+                $amountInUSD = (float) $args["amount"] / $midRate;
             } else {
-                $accountType = "momo";
+                $amountInUSD = (float) $args["amount"];
             }
 
-            $requestData = [
-                "channelId" => $accountMetadata["channel_id"],
-                "sequenceId" => $withdrawaReference,
-                "localAmount" => $args["amount"],
-                "currency" => $currency,
-                "reason" => "other",
-                "extra_data" => json_encode([
-                    "account" => $accountMetadata,
-                ]),
-                "customerType" => "institution",
-                "destination" => [
-                    "accountNumber" => isset($accountMetadata["account_number"])
-                        ? $accountMetadata["account_number"]
-                        : $accountMetadata["mobile_number"],
-                    "accountType" => $accountType,
-                    "networkId" => isset($accountMetadata["network_id"])
-                        ? $accountMetadata["network_id"]
-                        : "",
-                    "accountName" => isset(
-                        $accountMetadata["account_holder_name"]
-                    )
-                        ? $accountMetadata["account_holder_name"]
-                        : "",
-                    "phoneNumber" => isset($accountMetadata["mobile_number"])
-                        ? $accountMetadata["mobile_number"]
-                        : "",
-                    "networkName" => isset($accountMetadata["provider"])
-                        ? $accountMetadata["provider"]
-                        : "",
-                ],
-                "forceAccept" => env("APP_STATE") == "dev",
-            ];
+            $walletBalance = (float) $userWallet->total_balance;
 
-            $offrampResponse = $this->walletService->createPaymentSettlement(
-                $requestData,
-                $authUser->wallet->id,
-                $authUser->id
-            );
+            // Check if user can afford it
 
-            return OffRamp::query()
-                ->where("uuid", $offrampResponse["data"]["id"])
-                ->first();
-        }
+            if ($amountToSendInUSD > $walletBalance) {
+                throw new GraphQLException("Insufficient funds");
+            }
 
-        // TODO: Implement initiateWithdrawal method
-        return null;
+            if (in_array($currency, $yellowCardCurrencies)) {
+                $savedAccount = UserBank::query()
+                    ->where("uuid", $args["saved_account_uuid"])
+                    ->first();
+
+                if (!$savedAccount) {
+                    throw new GraphQLException("Saved account not found");
+                }
+
+                $withdrawaReference = Str::random(16);
+
+                $accountMetadata = json_decode($savedAccount->meta_data, true);
+
+                $accountType = "bank";
+
+                if ($savedAccount->bank_code == "bank_account") {
+                    $accountType = "bank";
+                } else {
+                    $accountType = "momo";
+                }
+
+                $requestData = [
+                    "channelId" => $accountMetadata["channel_id"],
+                    "sequenceId" => $withdrawaReference,
+                    "localAmount" => $args["amount"],
+                    "currency" => $currency,
+                    "reason" => "other",
+                    "extra_data" => json_encode([
+                        "account" => $accountMetadata,
+                    ]),
+                    "customerType" => "institution",
+                    "destination" => [
+                        "accountNumber" => isset(
+                            $accountMetadata["account_number"]
+                        )
+                            ? $accountMetadata["account_number"]
+                            : $accountMetadata["mobile_number"],
+                        "accountType" => $accountType,
+                        "networkId" => isset($accountMetadata["network_id"])
+                            ? $accountMetadata["network_id"]
+                            : "",
+                        "accountName" => isset(
+                            $accountMetadata["account_holder_name"]
+                        )
+                            ? $accountMetadata["account_holder_name"]
+                            : "",
+                        "phoneNumber" => isset(
+                            $accountMetadata["mobile_number"]
+                        )
+                            ? $accountMetadata["mobile_number"]
+                            : "",
+                        "networkName" => isset($accountMetadata["provider"])
+                            ? $accountMetadata["provider"]
+                            : "",
+                    ],
+                    "forceAccept" => env("APP_STATE") == "dev",
+                ];
+
+                $offrampResponse = $this->walletService->createPaymentSettlement(
+                    $requestData,
+                    $userWallet->id,
+                    $authUser->id
+                );
+
+                return OffRamp::query()
+                    ->where("uuid", $offrampResponse["data"]["id"])
+                    ->first();
+            }
+
+            return null;
+        });
     }
 
     public function initiateWalletKYC($_, array $args)
@@ -165,7 +201,8 @@ final class WalletMutator
                     "full_name" => $authUser->profile->business->business_name,
                     "email" => $authUser->email,
                     "type" => "business",
-                ]
+                ],
+                "create_kyc_links_{$wallet->id}"
             );
 
             $kycLinkResponse = $kycLinkResponse["data"];
@@ -180,55 +217,193 @@ final class WalletMutator
 
     public function confirmWithdrawal($_, array $args)
     {
-        $offramp = OffRamp::query()->where("uuid", $args["uuid"])->first();
-
-        if (!$offramp) {
-            throw new GraphqlException("Offramp not found");
-        }
-
-        if (env("APP_STATE") != "dev") {
-            $offrampResponse = $this->walletService->acceptPaymentSettlement(
-                $offramp->uuid
-            );
-        }
-
         $authUser = Auth::user();
 
-        $userWallet = $authUser->wallet;
+        return Cache::lock("payment_" . $authUser->uuid)->get(function () use (
+            $authUser,
+            $args
+        ) {
+            $bridgeCurrencies = [
+                "USD",
+                "USDC",
+                "XLM",
+                "EURC",
+                "USDT",
+                "BTC",
+                "ETH",
+            ];
 
-        $amount = 0;
+            $yellowCardCurrencies = ["NGN", "GHS", "KES", "ZAR"];
 
-        $chargesPercent = 0.01;
+            $offramp = null;
 
-        $yellowCardPayment = $offramp->yellowCardPayment();
+            $userWallet = $authUser->wallet;
 
-        if ($yellowCardPayment) {
-            $amount = $yellowCardPayment["amount"];
-        }
+            $currency = $args["currency"];
 
-        $transactionReference = Str::random(16);
+            $amountInUSD = 0;
 
-        // Debit user wallet
-        // We debit the user's wallet
-        $senderTransaction = $this->sendWalletTransaction(
-            $userWallet,
-            [
-                "type" => "debit",
-                "amount" => $amount,
-                "description" => "Fund Withdrawal",
-                "status" => "pending",
-                "extra_data" => $offramp->extra_data,
-                "charges" => $amount * $chargesPercent,
-                "reference" => $transactionReference,
-                "gateway" => "yellow_card",
-                "currency" => "USDC",
-            ],
-            "offramp",
-            $offramp->uuid,
-            "graphql"
-        );
+            if ($currency == "USDC" || $currency == "USDT") {
+                $currency = "USD";
+            }
 
-        return $offramp;
+            if ($currency == "EURC") {
+                $currency = "EUR";
+            }
+
+            if ($currency != "USD") {
+                $globalExchangeRate = $this->walletService->getGlobalExchangeRate(
+                    "USD",
+                    $currency
+                );
+
+                $globalExchangeRate = $globalExchangeRate["data"];
+
+                $midRate = $globalExchangeRate["mid"];
+
+                $amountInUSD = (float) $args["amount"] / $midRate;
+            } else {
+                $amountInUSD = (float) $args["amount"];
+            }
+
+            $walletBalance = (float) $userWallet->total_balance;
+
+            // Check if user can afford it
+
+            if ($amountInUSD > $walletBalance) {
+                throw new GraphQLException("Insufficient funds");
+            }
+
+            $amount = $args["amount"];
+
+            $chargesPercent = 0.01;
+
+            $transactionReference = Str::random(16);
+
+            $transactionStatus = "pending";
+
+            $gateway = "yellow_card";
+
+            if (in_array($args["currency"], $yellowCardCurrencies)) {
+                $offramp = OffRamp::query()
+                    ->where("uuid", $args["uuid"])
+                    ->first();
+
+                if (!$offramp) {
+                    throw new GraphqlException("Offramp not found");
+                }
+
+                if (env("APP_STATE") != "dev") {
+                    $offrampResponse = $this->walletService->acceptPaymentSettlement(
+                        $offramp->uuid
+                    );
+                }
+
+                $yellowCardPayment = $offramp->yellowCardPayment();
+
+                if ($yellowCardPayment) {
+                    $amount = $yellowCardPayment["amount"];
+                }
+            } elseif (in_array($args["currency"], $bridgeCurrencies)) {
+                if ($args["uuid"] != "pre_confirm") {
+                    throw new GraphqlException("Offramp not found");
+                }
+
+                if (!isset($args["metadata"])) {
+                    throw new GraphqlException("Payment metadata not found");
+                }
+
+                $gateway = "bridge";
+                $transactionStatus = "created";
+
+                $chargesPercent = 0.005;
+
+                $metadata = json_decode($args["metadata"], true);
+
+                $destination = [
+                    "currency" => strtolower($args["currency"]),
+                    "payment_rail" => str_replace(
+                        strtolower($args["currency"]) . "_",
+                        "",
+                        $metadata["channel_id"]
+                    ),
+                ];
+
+                if (isset($metadata["wallet_address"])) {
+                    $destination["to_address"] = $metadata["wallet_address"];
+                } elseif (isset($metadata["account_number"])) {
+                    $savedAccount = UserBank::query()
+                        ->where("uuid", $metadata["saved_account_uuid"])
+                        ->first();
+
+                    if (!$savedAccount) {
+                        throw new GraphQLException("Saved account not found");
+                    }
+
+                    $accountMetadata = json_decode(
+                        $savedAccount->meta_data,
+                        true
+                    );
+
+                    $destination["external_account_id"] =
+                        $metadata["bridge_account_id"];
+                }
+
+                $requestData = [
+                    "amount" => (string) $amount,
+                    "developer_fee" => (string) round(
+                        $amount * $chargesPercent,
+                        2
+                    ),
+                    "on_behalf_of" => $userWallet->bridge_customer_id,
+                    "source" => [
+                        "currency" => "usdc",
+                        "payment_rail" => "stellar",
+                        "from_address" =>
+                            $userWallet->blockchain_account->stellar_address,
+                    ],
+                    "destination" => $destination,
+                    "extra_data" => $args["metadata"],
+                ];
+
+                $randomKey = Str::random(10);
+
+                $initiatedTransferResponse = $this->walletService->createBridgeTransfer(
+                    $requestData,
+                    $userWallet->id,
+                    $authUser->id,
+                    "wallet_transfer_{$userWallet->id}_{$randomKey}"
+                );
+
+                $initiatedTransferResponse = $initiatedTransferResponse["data"];
+
+                $offramp = OffRamp::query()
+                    ->where("uuid", $initiatedTransferResponse["id"])
+                    ->first();
+            }
+
+            // Debit user wallet
+            // We debit the user's wallet
+            $senderTransaction = $this->sendWalletTransaction(
+                $userWallet,
+                [
+                    "type" => "debit",
+                    "amount" => $amountInUSD,
+                    "description" => "Fund Withdrawal",
+                    "status" => $transactionStatus,
+                    "extra_data" => $offramp->extra_data,
+                    "charges" => $amountInUSD * $chargesPercent,
+                    "reference" => $transactionReference,
+                    "gateway" => $gateway,
+                    "currency" => "USDC",
+                ],
+                "offramp",
+                $offramp->uuid,
+                "graphql"
+            );
+
+            return $offramp;
+        });
     }
 
     /**
@@ -246,10 +421,13 @@ final class WalletMutator
 
         $metadata = json_decode($args["metadata"], true);
 
+        $randomKey = Str::random(10);
+
         if ($args["type"] == "bank_account") {
             if ($metadata["country"] == "US") {
                 // Save account as external account on Bridge
-                $externalAccount = $this->walletService->createBridgeExternalAccount(
+                $externalAccount = $this->walletService->createBridgeCustomerExternalAccount(
+                    $userWallet->bridge_customer_id,
                     [
                         "type" => "raw",
                         "bank_name" => $metadata["bank_name"],
@@ -260,7 +438,7 @@ final class WalletMutator
                         "active" => true,
                         "address" => $metadata["address"],
                     ],
-                    "external_account_{$userWallet->id}"
+                    "external_account_{$userWallet->id}_{$randomKey}"
                 );
 
                 $externalAccount = $externalAccount["data"];

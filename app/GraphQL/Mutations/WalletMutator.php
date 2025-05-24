@@ -460,7 +460,7 @@ final class WalletMutator
                     ["name" => "slug", "contents" => "mykobo"],
                     ["name" => "account", "contents" => $accountSecret],
                     ["name" => "customer_type", "contents" => "sep31-receiver"],
-                    ["name" => "memo", "contents" => $userWallet->uuid],
+                    ["name" => "memo", "contents" => $userWallet->id],
                 ];
 
                 // Add fields[0].0, fields[0].1, etc.

@@ -446,6 +446,76 @@ final class WalletMutator
                 $metadata["bridge_account_id"] = $externalAccount["id"];
 
                 $args["metadata"] = json_encode($metadata);
+            } elseif ($metadata["country"] == "EU") {
+                // Get user kyc details from anchor
+                $accountSecret = $this->blockchainService->getAccountSecret(
+                    $userWallet->blockchain_account_id
+                )["data"];
+
+                $myKoboKyc = $metadata["mykobo_kyc"];
+
+                $uploads = $args["uploads"];
+
+                $multipart = [
+                    ["name" => "slug", "contents" => "mykobo"],
+                    ["name" => "account", "contents" => $accountSecret],
+                    ["name" => "customer_type", "contents" => "sep31-receiver"],
+                    ["name" => "memo", "contents" => $userWallet->uuid],
+                ];
+
+                // Add fields[0].0, fields[0].1, etc.
+                $fields = [
+                    "first_name" => $myKoboKyc["first_name"],
+                    "last_name" => $myKoboKyc["last_name"],
+                    "email_address" => $myKoboKyc["email_address"],
+                    "mobile_number" => $myKoboKyc["mobile_number_full"],
+                    "id_country_code" => $myKoboKyc["id_country_code"],
+                    "bank_account_number" => $metadata["account_number"],
+                ];
+
+                $index = 0;
+                foreach ($fields as $key => $value) {
+                    $multipart[] = [
+                        "name" => "fields[$index].0",
+                        "contents" => $key,
+                    ];
+                    $multipart[] = [
+                        "name" => "fields[$index].1",
+                        "contents" => $value,
+                    ];
+                    $index++;
+                }
+
+                // Add files[0].0 = name, files[0].1 = file
+                $files = [
+                    "photo_id_front" => $uploads[$myKoboKyc["photo_id_front"]],
+                    "photo_proof_residence" =>
+                        $uploads[$myKoboKyc["photo_proof_residence"]],
+                    "proof_of_liveness" =>
+                        $uploads[$myKoboKyc["proof_of_liveness"]],
+                ];
+
+                $i = 0;
+                foreach ($files as $key => $path) {
+                    $multipart[] = [
+                        "name" => "files[$i].0",
+                        "contents" => $key,
+                    ];
+                    $multipart[] = [
+                        "name" => "files[$i].1",
+                        "contents" => fopen($path, "r"),
+                        "filename" => basename($path),
+                    ];
+                    $i++;
+                }
+
+                $newCustomer = $this->offrampService->createKyc($multipart);
+
+                $newCustomer = $newCustomer["data"];
+
+                $metadata["mykobo_customer_id"] = $newCustomer["id"];
+
+                $args["metadata"] = json_encode($metadata);
             }
         }
 

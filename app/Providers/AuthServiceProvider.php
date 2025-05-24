@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\GraphQLException;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {

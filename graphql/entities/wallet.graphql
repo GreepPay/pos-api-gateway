@@ -118,6 +118,8 @@ extend type Mutation @guard {
         unique_id: String!
         "Stringified JSON object containing additional account details"
         metadata: String!
+        "uploads"
+        uploads: [Upload!]
     ): UserBank! @field(resolver: "WalletMutator@createSavedAccount")
 
     "Remove a saved account"

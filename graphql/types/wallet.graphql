@@ -197,3 +197,199 @@ type GlobalExchangeRate {
     "Timestamp"
     timestamp: DateTime!
 }
+
+"Yellowcard Network"
+type YellowcardNetwork {
+    "Unique ID"
+    id: String!
+
+    "Network Code"
+    code: String
+
+    "Has branch"
+    hasBranch: Boolean
+
+    "Network Name"
+    name: String
+
+    "Country Code"
+    country: String
+
+    "Account Number Type"
+    accountNumberType: String
+
+    "Country Account Number Type"
+    countryAccountNumberType: String
+
+    "Status"
+    status: String
+
+    "Channel IDs"
+    channelIds: [String]
+}
+
+"Payment Request Response"
+type PaymentRequestResponse {
+    "Unique ID"
+    id: String!
+
+    "Channel ID"
+    channelId: String!
+
+    "Sequence ID"
+    sequenceId: String!
+
+    "Currency"
+    currency: String!
+
+    "Country"
+    country: String!
+
+    "Amount"
+    amount: Float!
+
+    "Reason"
+    reason: String!
+
+    "Converted Amount"
+    convertedAmount: Float!
+
+    "Status"
+    status: String!
+
+    "Rate"
+    rate: Float!
+
+    "Sender Information"
+    sender: Sender!
+
+    "Destination Information"
+    destination: Destination!
+
+    "Created At"
+    createdAt: String!
+
+    "Updated At"
+    updatedAt: String!
+
+    "Expiration Time"
+    expiresAt: String!
+}
+
+"Sender Details"
+type Sender {
+    "Sender's Name"
+    name: String!
+
+    "Sender's Country"
+    country: String!
+
+    "Sender's Phone Number"
+    phone: String!
+
+    "Sender's Address"
+    address: String!
+
+    "Sender's Date of Birth"
+    dob: String!
+
+    "Sender's Email"
+    email: String!
+
+    "Sender's ID Number"
+    idNumber: String!
+
+    "Sender's ID Type"
+    idType: String!
+}
+
+"Destination Details"
+type Destination {
+    "Account Name"
+    accountName: String!
+
+    "Account Number"
+    accountNumber: String!
+
+    "Account Type"
+    accountType: String!
+
+    "Network ID"
+    networkId: String!
+}
+
+"Offramp Transaction"
+type OffRamp {
+    "Unique ID"
+    id: Int!
+
+    "Unique UUID"
+    uuid: String!
+
+    "Withdrawal Amount"
+    amount: String!
+
+    "Yellow card payment"
+    yellow_card_payment: PaymentRequestResponse
+        @method(name: "yellowCardPayment")
+
+    "Payment Reference"
+    payment_reference: String!
+
+    "Transaction State ('active' or 'archived')"
+    state: String!
+
+    "Payment Channel"
+    payment_channel: String!
+
+    "Withdrawal Description"
+    description: String!
+
+    "Transaction Status"
+    status: String!
+
+    "Currency of Withdrawal"
+    currency: String!
+
+    "Additional Data"
+    extra_data: String
+
+    "Sender's Full Name"
+    senderName: String
+
+    "Sender's Country"
+    senderCountry: String
+
+    "Sender's Phone Number"
+    senderPhone: String
+
+    "Sender's Address"
+    senderAddress: String
+
+    "Sender's Date of Birth"
+    senderDob: String
+
+    "Sender's Email Address"
+    senderEmail: String
+
+    "Type of Sender's ID"
+    senderIdType: String
+
+    "Sender's Business ID (if institution)"
+    senderBusinessId: String
+
+    "Sender's Business Name (if institution)"
+    senderBusinessName: String
+
+    "Additional ID Type (if applicable)"
+    senderAdditionalIdType: String
+
+    "Additional ID Number (if applicable)"
+    senderAdditionalIdNumber: String
+
+    "Offramp Created At"
+    created_at: String!
+
+    "Offramp Updated At"
+    updated_at: String!
+}

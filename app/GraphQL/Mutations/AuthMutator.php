@@ -13,6 +13,7 @@ use App\Services\WalletService;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 final class AuthMutator
 {
@@ -315,6 +316,12 @@ final class AuthMutator
     public function logout($_, array $args): bool
     {
         $this->authService->logOut();
+
+        $token = request()->bearerToken();
+
+        $authCacheKey = "auth_user_" . $token;
+
+        Cache::forget($authCacheKey);
 
         return true;
     }

@@ -252,7 +252,8 @@ class NetworkHandler
         string $path,
         array $data,
         bool $cacheable = false,
-        array $updateTasks = []
+        array $updateTasks = [],
+        bool $asMultipart = false
     ) {
         if (count($updateTasks) > 0) {
             // $cacheUpdator = new UpdateCache($updateTasks);
@@ -276,7 +277,31 @@ class NetworkHandler
             }
         }
 
-        $response = $this->httpClient->post($fullUrl, $data);
+        if (!$asMultipart) {
+            $response = $this->httpClient->post($fullUrl, $data);
+        } else {
+            foreach ($data as $part) {
+                $name = $part["name"];
+                $contents = $part["contents"];
+
+                if (isset($part["filename"])) {
+                    // It's a file
+                    $this->httpClient = $this->httpClient->attach(
+                        $name,
+                        $contents,
+                        $part["filename"]
+                    );
+                } else {
+                    // It's a text field
+                    $this->httpClient = $this->httpClient->attach(
+                        $name,
+                        $contents
+                    );
+                }
+            }
+
+            $response = $this->httpClient->post($fullUrl);
+        }
 
         return $this->handleResponse(
             $response,
@@ -315,8 +340,12 @@ class NetworkHandler
      *
      * @return mixed The response data.
      */
-    public function put(string $path, array $data, array $updateTasks = [])
-    {
+    public function put(
+        string $path,
+        array $data,
+        array $updateTasks = [],
+        bool $asMultipart = false
+    ) {
         if (count($updateTasks) > 0) {
             // $cacheUpdator = new UpdateCache($updateTasks);
             // dispatch($cacheUpdator);
@@ -324,7 +353,11 @@ class NetworkHandler
 
         $fullUrl = $this->service_url . $path;
 
-        $response = $this->httpClient->put($fullUrl, $data);
+        if (!$asMultipart) {
+            $response = $this->httpClient->put($fullUrl, $data);
+        } else {
+            $response = $this->httpClient->asMultipart()->put($fullUrl, $data);
+        }
 
         return $this->handleResponse($response, "", false, [], $updateTasks);
     }

@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\GraphQLException;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -37,8 +38,15 @@ class AuthServiceProvider extends ServiceProvider
                         return null;
                     }
 
-                    $authService = new AuthService();
-                    $response = $authService->authUser();
+                    $cacheKey = "auth_user_" . $token;
+                    $response = cache()->remember(
+                        $cacheKey,
+                        now()->addMinutes(60),
+                        function () use ($token) {
+                            $authService = new AuthService();
+                            return $authService->authUser();
+                        }
+                    );
 
                     if (!$response || empty($response["data"])) {
                         return null;

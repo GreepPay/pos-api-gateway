@@ -2,6 +2,7 @@
 
 namespace App\Models\Wallet;
 
+use App\Services\WalletService;
 use Illuminate\Database\Eloquent\Model;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
@@ -74,4 +75,15 @@ class OffRamp extends Model
     protected $connection = "greep-wallet";
 
     protected $table = "wallet_service.offramp";
+
+    public function yellowCardPayment()
+    {
+        if ($this->gateway == "yellowcard") {
+            $walletService = new WalletService();
+
+            return $walletService->getPaymentSettlement($this->uuid)["data"];
+        } else {
+            return null;
+        }
+    }
 }

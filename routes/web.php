@@ -1,5 +1,7 @@
 <?php
 
+use App\GraphQL\Queries\WalletQuery;
+use App\Services\WalletService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIDocController;
 

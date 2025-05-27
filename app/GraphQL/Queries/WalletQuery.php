@@ -46,6 +46,59 @@ final class WalletQuery
     }
 
     /**
+     * Get yellowcard networks by country
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     *
+     * @return array
+     */
+    public function getYellowCardNetwork($_, array $args): array
+    {
+        $allNetworks = $this->walletService->getOffRampNetworkByCountryCode(
+            $args["country_code"]
+        );
+
+        $allNetworks = $allNetworks["data"]["networks"];
+
+        $finalNetworks = [];
+
+        foreach ($allNetworks as $network) {
+            if ($network["status"] == "active") {
+                if (!is_string($network["code"])) {
+                    $network["code"] = json_encode($network["code"]);
+                    $network["hasBranch"] = true;
+                } else {
+                    $network["hasBranch"] = false;
+                }
+                $finalNetworks[] = $network;
+            }
+        }
+
+        return $finalNetworks;
+    }
+
+    /**
+     * Resolve bank account details
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     *
+     * @return string
+     */
+    public function getBankAccountDetails($_, array $args): string
+    {
+        $accountDetails = $this->walletService->resolveBankAccount([
+            "accountNumber" => $args["accountNumber"],
+            "networkId" => $args["networkId"],
+        ]);
+
+        $allNetworks = $accountDetails["data"];
+
+        return $allNetworks["accountName"];
+    }
+
+    /**
      * Get global exchange rate for a given currency pair.
      *
      * @param  mixed  $_
@@ -245,21 +298,21 @@ final class WalletQuery
         } elseif ($currency == "USDC") {
             $withdrawInfo = [
                 "methods" => [
-                    [
-                        "name" => "Stellar",
-                        "description" => "Withdraw USDC via Stellar network",
-                        "fee" => "0.0",
-                        "min_amount" => 5.0,
-                        "max_amount" => 10000.0,
-                        "unique_id" => "usdc_stellar",
-                    ],
+                    // [
+                    //     "name" => "Stellar",
+                    //     "description" => "Withdraw USDC via Stellar network",
+                    //     "fee" => "0.0",
+                    //     "min_amount" => 5.0,
+                    //     "max_amount" => 10000.0,
+                    //     "unique_id" => "usdc_stellar",
+                    // ],
                     [
                         "name" => "ETH",
                         "description" => "Withdraw USDC via Ethereum network",
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdc_eth",
+                        "unique_id" => "usdc_ethereum",
                     ],
                     [
                         "name" => "Polygon",
@@ -291,7 +344,7 @@ final class WalletQuery
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdc_avalanche",
+                        "unique_id" => "usdc_avalanche_c_chain",
                     ],
                     [
                         "name" => "Optimism",
@@ -321,7 +374,7 @@ final class WalletQuery
                         "fee" => "0.0",
                         "min_amount" => 5.0,
                         "max_amount" => 10000.0,
-                        "unique_id" => "usdt_eth",
+                        "unique_id" => "usdt_ethereum",
                     ],
                     [
                         "name" => "Tron",

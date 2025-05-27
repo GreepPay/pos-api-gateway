@@ -3,6 +3,7 @@
 namespace App\Models\Wallet;
 
 use App\Models\Auth\User;
+use App\Models\Blockchain\Account;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
@@ -63,5 +64,10 @@ class Wallet extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function blockchain_account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class, "blockchain_account_id", "id");
     }
 }

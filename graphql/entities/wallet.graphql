@@ -84,6 +84,79 @@ extend type Query @guard {
 
     "Get single offramp"
     GetOfframp(uuid: String! @eq): OffRamp @first
+    "Get all ads - paginated list of ads"
+    GetAllAds(
+        orderBy: _ @orderBy(columns: ["created_at"])
+        where: _
+            @whereConditions(
+                columns: [
+                    "from_currency"
+                    "to_currency"
+                    "rate"
+                    "min_amount"
+                    "max_amount"
+                    "payout_address"
+                    "address_details"
+                    "business_id"
+                    "status"
+                    "created_at"
+                    "updated_at"
+                ]
+            )
+    ): [Ad!]! @paginate
+
+    "Get a single ad by UUID"
+    GetSingleAd(uuid: String! @eq): Ad @first
+
+    "Get all orders - paginated list of orders"
+    GetAllOrders(
+        orderBy: _ @orderBy(columns: ["created_at"])
+        where: _
+            @whereConditions(
+                columns: [
+                    "amount"
+                    "status"
+                    "expired_at" 
+                    "expected_amount"               
+                    "payment_amount"
+                    "payment_type"
+                    "payout_option"
+                    "pickup_location_address_line"
+                    "pickup_location_city"
+                    "pickup_location_country"
+                    "created_at"
+                    "updated_at"
+                ]
+            )
+    ): [Order!]! @paginate @whereAuth(relation: "user")
+
+    "Get a single order by UUID"
+    GetSingleOrder(uuid: String! @eq): Order @first
+    
+    
+    "Get trade exchange rate information"
+        GetTradeExchangeRate(
+            from_currency: String!
+            to_currency: String!
+        ): TradeExchangeRate! @field(resolver: "TradeQuery@getTradeExchangeRate")
+    
+        "Get trade cash limits for a currency pair"
+        GetTradeCashLimits(
+            from_currency: String!
+            to_currency: String!
+        ): CashLimit! @field(resolver: "TradeQuery@getTradeCashLimits")
+    
+        "Get available payout options for a trade"
+        GetTradePayoutOptions(
+            from_currency: String!
+            to_currency: String!
+        ): [String!]! @field(resolver: "TradeQuery@getTradePayoutOptions")
+    
+        "Get trader profile information including trade stats"
+        GetTraderProfile(
+            user_id: String! @eq
+        ): TraderProfile! @field(resolver: "TradeQuery@getTraderProfile")
+
 }
 
 extend type Mutation @guard {
@@ -125,4 +198,36 @@ extend type Mutation @guard {
     "Remove a saved account"
     RemoveSavedAccount(saved_account_uuid: String!): Boolean!
         @field(resolver: "WalletMutator@removeSavedAccount")
+        
+    "Create Ad"
+    CreateAd(
+        from_currency: String!
+        to_currency: String!
+        rate: Float!
+        min_amount: Float!
+        max_amount: Float!
+        payout_address: String!
+        address_details:String!
+        payout_banks:[String!]!
+        business_id:String!
+      
+        ): Ad! @field(resolver: "WalletMutator@CreateAd")
+        
+        
+        
+        "Create Order"
+        CreateOrder(
+            uuid: String!
+            amount: number!
+            amount: Float!
+            payment_amount: String!
+            payment_type: string!
+            payout_option: string!
+            pickup_location_address_line: string!
+            pickup_location_city: string!
+            pickup_location_country!: string
+            ): Order! @field(resolver: "WalletMutator@CreateOrder")
 }
+
+
+

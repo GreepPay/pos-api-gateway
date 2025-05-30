@@ -393,3 +393,153 @@ type OffRamp {
     "Offramp Updated At"
     updated_at: String!
 }
+
+
+
+"""
+A single order placed for an Ad
+"""
+type Order {
+  "Unique UUID for the order"
+  uuid: String!
+
+  "ID of the Ad this order is for"
+  ad_id: Int!
+
+  "ID of the User who placed the order"
+  user_id: Int!
+
+  "Amount in from_currency"
+  amount: Float!
+
+  "Amount expected in to_currency"
+  expected_amount: Float!
+
+  "Expiration date and time of the order"
+  expired_at: DateTime!
+
+  "Order status (pending, completed, cancelled, failed)"
+  status: String!
+
+  "Payment Amount"
+  payment_amount: String
+
+  "Payment Type"
+  payment_type: String
+
+  "Payout Option"
+  payout_option: String
+
+  "Pickup Location Address Line"
+  pickup_location_address_line: String
+
+  "Pickup Location City"
+  pickup_location_city: String
+
+  "Pickup Location Country"
+  pickup_location_country: String
+
+  "Customer Name"
+  customer_name: String
+
+  "Associated Ad"
+  ad: Ad!
+
+  "Date order was created"
+  created_at: DateTime!
+
+  "Date order was last updated"
+  updated_at: DateTime!
+}
+
+
+
+"""
+An Ad listing created by a user to exchange currency
+"""
+type Ad {
+  "Unique UUID for the ad"
+  uuid: String!
+
+  "ID of the user who created the ad"
+  user_id: Int!
+
+  "Currency offered by user (e.g., USDC)"
+  from_currency: String!
+
+  "Currency user wants in return (e.g., Lira)"
+  to_currency: String!
+
+  "Conversion rate (e.g., 1 USDC = 40 Lira)"
+  rate: Float!
+
+  "Minimum exchange amount"
+  min_amount: Float!
+
+  "Maximum exchange amount"
+  max_amount: Float!
+
+  "Optional payout address (e.g., bank account)"
+  payout_address: String
+
+  "Additional address details (e.g., account number)"
+  address_details: String
+
+  "List of acceptable banks for payout"
+  payout_banks: [String!]
+
+  "Business UUID if posted as a business ad"
+  business_id: String
+
+  "Status of the ad (active, completed, cancelled)"
+  status: String!
+
+  "Orders placed for this ad"
+  orders: [Order!]!
+
+  "Date ad was created"
+  created_at: DateTime!
+
+  "Date ad was last updated"
+  updated_at: DateTime!
+}
+
+
+
+type PayoutOption {
+  type: String!
+  details: String
+}
+
+type CashLimit {
+  min: Float!
+  max: Float!
+}
+
+type TradeExchange {
+  rate: Float!
+  fromCurrency: String!
+  toCurrency: String!
+}
+
+type UserStats {
+  totalTrades: Int!
+  successRate: Float!
+  profilePicture: String
+  name: String!
+}
+
+type AdDetails {
+  id: ID!
+  exchange: TradeExchange!
+  cashLimit: CashLimit!
+  payoutOptions: [PayoutOption!]!
+  userStats: UserStats!
+}
+
+type Query {
+  getAdDetails(id: ID!): AdDetails
+}
+
+
+

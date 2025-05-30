@@ -1019,4 +1019,60 @@ class WalletService
             "/{$appVersion}/bridge/webhooks/{$webhookID}"
         );
     }
+
+    /**
+     * Create ad
+     * @param array $data
+     * @return mixed
+     */
+    public function createAd(array $data)
+    {
+        return $this->walletNetwork->post("/v1/ads", $data);
+    }
+
+    /**
+     * Update ad
+     * @param int $id
+     * @param array $data
+     * @return mixed
+     */
+    public function updateAd(int $id, array $data)
+    {
+        return $this->walletNetwork->put("/v1/ads/{$id}", $data);
+    }
+
+    /**
+     * Delete ad
+     * @param int $id
+     * @return mixed
+     */
+    public function deleteAd(int $id)
+    {
+        return $this->walletNetwork->delete("/v1/ads/{$id}");
+    }
+    
+    // Order
+
+    /**
+     * Create order
+     * @param array $data
+     * @return mixed
+     */
+    public function createOrder(array $data)
+    {
+        return $this->walletNetwork->post("/v1/orders", $data);
+    }
+
+    /**
+     * Cancel order
+     * @param int $id
+     * @param array $data
+     * @return mixed
+     */
+    public function cancelOrder(int $id, array $data)
+    {
+        return $this->walletNetwork->post("/v1/orders/{$id}/cancel", $data);
+    }
+    
+    
 }

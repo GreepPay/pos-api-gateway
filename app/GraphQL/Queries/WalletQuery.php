@@ -15,6 +15,9 @@ final class WalletQuery
     {
         $this->walletService = new WalletService();
         $this->offrampService = new OfframpService();
+        $this->adService = new AdService();
+        $this->orderService = new OrderService();
+        $this->userService = new UserService();
     }
 
     /**
@@ -188,6 +191,130 @@ final class WalletQuery
 
         return $response;
     }
+    
+    
+    /**
+     * Get detailed ad information including exchange rate, limits, payout options, and user stats
+     *
+     * @param  mixed  $_
+     * @param  array  $args
+     * @return array
+     */
+    public function getAdDetails($_, array $args): array
+    {
+        // Get the ad details
+        $ad = $this->adService->getAdById($args['id']);
+        
+        if (!$ad) {
+            throw new \Exception("Ad not found");
+        }
+
+        // Get user's orders to calculate trade stats
+        $orders = $this->orderService->getOrdersByUserId($ad['user_id']);
+        
+        // Calculate total trades and success rate
+        $totalTrades = count($orders);
+        $successfulTrades = array_reduce($orders, function($carry, $order) {
+            return $carry + ($order['status'] === 'completed' ? 1 : 0);
+        }, 0);
+        
+        $successRate = $totalTrades > 0 ? ($successfulTrades / $totalTrades) * 100 : 0;
+
+        // Get user profile (including profile picture)
+        $userProfile = $this->userService->getProfile($ad['user_id']);
+
+        // Map payout options from ad data
+        $payoutOptions = array_map(function($option) {
+            return [
+                'type' => $option['type'],
+                'details' => $option['details'] ?? null,
+            ];
+        }, $ad['payout_banks'] ?? []);
+
+        // Add additional payout options if they exist in the ad
+        if ($ad['payout_address']) {
+            $payoutOptions[] = [
+                'type' => 'crypto',
+                'details' => $ad['payout_address'],
+            ];
+        }
+
+        if ($ad['address_details']) {
+            $payoutOptions[] = [
+                'type' => 'pickup',
+                'details' => $ad['address_details'],
+            ];
+        }
+
+        // Return structured data matching the GraphQL type
+        return [
+            'id' => $ad['id'],
+            'exchange' => [
+                'rate' => $ad['rate'],
+                'fromCurrency' => $ad['from_currency'],
+                'toCurrency' => $ad['to_currency'],
+            ],
+            'cashLimit' => [
+                'min' => $ad['min_amount'],
+                'max' => $ad['max_amount'],
+            ],
+            'payoutOptions' => $payoutOptions,
+            'userStats' => [
+                'totalTrades' => $totalTrades,
+                'successRate' => $successRate,
+                'profilePicture' => $userProfile['profile_picture'] ?? null,
+                'name' => $userProfile['name'] ?? 'Anonymous',
+            ],
+        ];
+    }
+    
+    /**
+     * Get ad by ID
+     * 
+     * @param string $id
+     * @return array|null
+     */
+    public function getAdById(string $id): ?array
+    {
+        // Assuming you're using Laravel's Eloquent or similar
+        $ad = Ad::find($id);
+        return $ad ? $ad->toArray() : null;
+    }
+    
+    
+    
+    /**
+     * Get all orders for a user
+     * 
+     * @param string $userId
+     * @return array
+     */
+    public function getOrdersByUserId(string $userId): array
+    {
+        return Order::where('user_id', $userId)
+                   ->get()
+                   ->toArray();
+    }
+    
+    
+    /**
+     * Get user profile
+     * 
+     * @param string $userId
+     * @return array
+     */
+    public function getProfile(string $userId): array
+    {
+        // Implementation depends on your user system
+        // This might come from your auth system or user profile table
+        $user = User::find($userId);
+        
+        return [
+            'name' => $user->name,
+            'profile_picture' => $user->profile_picture_url,
+        ];
+    }
+    
 
     public function getWithdrawInfo($_, array $args): mixed
     {
@@ -502,4 +629,5 @@ final class WalletQuery
 
         return $withdrawInfo;
     }
+    
 }

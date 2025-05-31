@@ -190,11 +190,10 @@ final class WalletMutator
            ];
    
            // Create the ad
-           $ad = $this->adService->createAd($adData);
+           $ad = $this->walletService->createAd($adData);
    
            // Return the created ad in GraphQL format
            return [
-               'id' => $ad['id'],
                'uuid' => $ad['uuid'],
                'user_id' => $ad['user_id'],
                'from_currency' => $ad['from_currency'],
@@ -244,11 +243,134 @@ final class WalletMutator
            ];
    
            // Create the order
-           $order = $this->orderService->createOrder($orderData);
+           $order = $this->walletService->createOrder($orderData);
    
            // Return the created order in GraphQL format
            return [
-               'id' => $order['id'],
+               'uuid' => $order['uuid'],
+               'ad_id' => $order['ad_id'],
+               'user_id' => $order['user_id'],
+               'amount' => $order['amount'],
+               'expected_amount' => $order['expected_amount'],
+               'payment_amount' => $order['payment_amount'],
+               'payment_type' => $order['payment_type'],
+               'payout_option' => $order['payout_option'],
+               'status' => $order['status'],
+               'pickup_location_address_line' => $order['pickup_location_address_line'],
+               'pickup_location_city' => $order['pickup_location_city'],
+               'pickup_location_country' => $order['pickup_location_country'],
+               'expired_at' => $order['expired_at'],
+               'created_at' => $order['created_at'],
+               'updated_at' => $order['updated_at'],
+           ];
+       }
+       
+       
+       /**
+        * Update an existing ad
+        *
+        * @param  mixed  $_
+        * @param  array  $args
+        * @return array
+        */
+       public function UpdateAd($_, array $args): array
+       {
+           // Get authenticated user
+           $user = Auth::user();
+           if (!$user) {
+               throw new \Exception("Unauthorized");
+           }
+       
+           // Prepare ad data
+           $adData = [
+               'from_currency' => $args['from_currency'] ?? null,
+               'to_currency' => $args['to_currency'] ?? null,
+               'rate' => $args['rate'] ?? null,
+               'min_amount' => $args['min_amount'] ?? null,
+               'max_amount' => $args['max_amount'] ?? null,
+               'payout_address' => $args['payout_address'] ?? null,
+               'address_details' => $args['address_details'] ?? null,
+               'payout_banks' => $args['payout_banks'] ?? null,
+               'business_id' => $args['business_id'] ?? null,
+               'status' => $args['status'] ?? null,
+           ];
+       
+           // Filter out null values
+           $adData = array_filter($adData, function($value) {
+               return $value !== null;
+           });
+       
+           // Update the ad
+           $ad = $this->walletService->updateAd($args['uuid'], $adData);
+       
+           // Return the updated ad in GraphQL format
+           return [
+               'uuid' => $ad['uuid'],
+               'user_id' => $ad['user_id'],
+               'from_currency' => $ad['from_currency'],
+               'to_currency' => $ad['to_currency'],
+               'rate' => $ad['rate'],
+               'min_amount' => $ad['min_amount'],
+               'max_amount' => $ad['max_amount'],
+               'payout_address' => $ad['payout_address'],
+               'address_details' => $ad['address_details'],
+               'payout_banks' => $ad['payout_banks'],
+               'business_id' => $ad['business_id'],
+               'status' => $ad['status'] ?? 'active',
+               'created_at' => $ad['created_at'],
+               'updated_at' => $ad['updated_at'],
+           ];
+       }
+       
+       /**
+        * Delete an ad
+        *
+        * @param  mixed  $_
+        * @param  array  $args
+        * @return bool
+        */
+       public function DeleteAd($_, array $args): bool
+       {
+           // Get authenticated user
+           $user = Auth::user();
+           if (!$user) {
+               throw new \Exception("Unauthorized");
+           }
+       
+           // Delete the ad
+           $response = $this->walletService->deleteAd($args['uuid']);
+       
+           // Return success status
+           return true;
+       }
+       
+       /**
+        * Cancel an order
+        *
+        * @param  mixed  $_
+        * @param  array  $args
+        * @return array
+        */
+       public function CancelOrder($_, array $args): array
+       {
+           // Get authenticated user
+           $user = Auth::user();
+           if (!$user) {
+               throw new \Exception("Unauthorized");
+           }
+       
+           // Prepare order data with status update
+           $orderData = [
+               'status' => 'cancelled',
+               'cancelled_by' => $user->id,
+               'cancelled_at' => now()->toDateTimeString(),
+           ];
+       
+           // Update the order status to cancelled
+           $order = $this->walletService->CancelOrder($args['uuid'], $orderData);
+       
+           // Return the updated order in GraphQL format
+           return [
                'uuid' => $order['uuid'],
                'ad_id' => $order['ad_id'],
                'user_id' => $order['user_id'],

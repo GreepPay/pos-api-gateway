@@ -201,6 +201,7 @@ extend type Mutation @guard {
         
     "Create Ad"
     CreateAd(
+        uuid: String!
         from_currency: String!
         to_currency: String!
         rate: Float!
@@ -213,8 +214,7 @@ extend type Mutation @guard {
       
         ): Ad! @field(resolver: "WalletMutator@CreateAd")
         
-        
-        
+    
         "Create Order"
         CreateOrder(
             uuid: String!

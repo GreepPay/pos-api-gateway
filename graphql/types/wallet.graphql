@@ -1,4 +1,4 @@
-"A single beneficiary"
+9"A single beneficiary"
 type UserBank {
     "Unique UUID"
     uuid: String!

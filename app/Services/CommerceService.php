@@ -238,4 +238,20 @@ class CommerceService
     {
         return $this->commerceNetwork->patch("/vl/tickets/{$id}", $request);
     }
+    
+    
+    public function createShop(array $request): mixed
+     {
+         return $this->commerceNetwork->post("/v1/shops", $request);
+     }
+
+     public function updateShop(string $id, array $request): mixed
+     {
+         return $this->commerceNetwork->put("/v1/shops/{$id}", $request);
+     }
+
+     public function deleteShop(string $id): mixed
+     {
+         return $this->commerceNetwork->delete("/v1/shops/{$id}");
+     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models\User;
 
 use App\Models\Auth\User;
+use App\Models\Wallet\Ad;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -55,5 +56,11 @@ class UserProfile extends Model
     public function business(): HasOne
     {
         return $this->hasOne(Business::class, "auth_user_id", "auth_user_id");
+    }
+    
+    
+    public function ads(): HasMany
+    {
+        return $this->hasMany(Ad::class, 'user_id');
     }
 }

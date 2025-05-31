@@ -398,22 +398,22 @@ class WalletService
     }
 
     /**
-     * Create offramp
-     * @param array $data
-     * @return mixed
-     */
-    public function createOfframp(
-        array $data,
-        $wallet_id,
-        $user_id,
-        string $idempotencyKey
-    ) {
-        $appVersion = env("APP_VERSION", "v1");
-        return $this->walletNetwork->post(
-            "/{$appVersion}/create/offramp/{$wallet_id}/{$user_id}?idempotencyKey={$idempotencyKey}",
-            $data
-        );
-    }
+      * Create offramp
+      * @param array $data
+      * @return mixed
+      */
+     public function createOfframp(
+         array $data,
+         $wallet_id,
+         $user_id,
+         string $idempotencyKey
+     ) {
+         $appVersion = env("APP_VERSION", "v1");
+         return $this->walletNetwork->post(
+             "/{$appVersion}/create/offramp/{$wallet_id}/{$user_id}?idempotencyKey={$idempotencyKey}",
+             $data
+         );
+     }
 
     /**
      * Get bridge transfer by ID
@@ -1073,6 +1073,6 @@ class WalletService
     {
         return $this->walletNetwork->post("/v1/orders/{$id}/cancel", $data);
     }
-    
+
     
 }

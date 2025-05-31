@@ -302,7 +302,6 @@ final class WalletMutator
        
            // Update the ad
            $ad = $this->walletService->updateAd($args['uuid'], $adData);
-       
            // Return the updated ad in GraphQL format
            return [
                'uuid' => $ad['uuid'],
@@ -367,7 +366,7 @@ final class WalletMutator
            ];
        
            // Update the order status to cancelled
-           $order = $this->walletService->CancelOrder($args['uuid'], $orderData);
+           $order = $this->walletService->cancelOrder($args['uuid'], $orderData);
        
            // Return the updated order in GraphQL format
            return [

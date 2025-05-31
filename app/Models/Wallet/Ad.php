@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+ use App\Models\User\UserProfile;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
+ * @property-read \App\Models\User\UserProfile|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|Ad newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Ad newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Ad query()
@@ -68,11 +70,15 @@ class Ad extends Model
         return $this->hasMany(Order::class);
     }
 
-     /**
-     * Get the user that created the ad.
+    /**
+     * Get the user profile that created the ad.
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(UserProfile::class, 'user_id');
+        return $this->belongsTo(
+            UserProfile::class, 
+            'user_id',                        
+            'user_id'                        
+        );
     }
 }

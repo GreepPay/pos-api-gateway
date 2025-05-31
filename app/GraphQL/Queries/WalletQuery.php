@@ -15,8 +15,6 @@ final class WalletQuery
     {
         $this->walletService = new WalletService();
         $this->offrampService = new OfframpService();
-        $this->adService = new AdService();
-        $this->orderService = new OrderService();
         $this->userService = new UserService();
     }
 
@@ -203,14 +201,14 @@ final class WalletQuery
     public function getAdDetails($_, array $args): array
     {
         // Get the ad details
-        $ad = $this->adService->getAdById($args['id']);
+        $ad = $this->getAdById($args['id']);
         
         if (!$ad) {
             throw new \Exception("Ad not found");
         }
 
         // Get user's orders to calculate trade stats
-        $orders = $this->orderService->getOrdersByUserId($ad['user_id']);
+        $orders = $this->getOrdersByUserId($ad['user_id']);
         
         // Calculate total trades and success rate
         $totalTrades = count($orders);
@@ -221,7 +219,7 @@ final class WalletQuery
         $successRate = $totalTrades > 0 ? ($successfulTrades / $totalTrades) * 100 : 0;
 
         // Get user profile (including profile picture)
-        $userProfile = $this->userService->getProfile($ad['user_id']);
+        $userProfile = $this->showProfile();
 
         // Map payout options from ad data
         $payoutOptions = array_map(function($option) {
@@ -268,6 +266,21 @@ final class WalletQuery
         ];
     }
     
+    
+    
+    public function showProfile()
+    {
+        $authUser = $this->authService->authUser();
+        $userData = $authUser['data']['user'] ?? null;
+    
+        if (!$userData) {
+            throw new \Exception("Unauthorized");
+        }
+    
+        // Return only the profile picture (or null if not available)
+        return $userData['profile_picture'] ?? null;
+    }
+    
     /**
      * Get ad by ID
      * 
@@ -276,7 +289,6 @@ final class WalletQuery
      */
     public function getAdById(string $id): ?array
     {
-        // Assuming you're using Laravel's Eloquent or similar
         $ad = Ad::find($id);
         return $ad ? $ad->toArray() : null;
     }

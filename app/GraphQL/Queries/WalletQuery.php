@@ -5,6 +5,7 @@ namespace App\GraphQL\Queries;
 use App\Services\OfframpService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 final class WalletQuery
 {
@@ -267,32 +268,33 @@ final class WalletQuery
                 "currency" => "USD",
             ];
         } elseif ($currency == "EUR") {
-            $sep31Info = $this->offrampService->getSep31Info([
+            $sep6Info = $this->offrampService->getAnchorInfo([
                 "slug" => "mykobo",
             ]);
 
-            $sep31Info = $sep31Info["data"];
+            $sep6Info = $sep6Info["data"];
 
-            $availableChoices =
-                $sep31Info["receive"]["EURC"]["fields"]["transaction"]["type"][
-                    "choices"
-                ];
+            Log::debug($sep6Info);
 
-            $feePercentage = $sep31Info["receive"]["EURC"]["fee_percent"];
+            $withdrawalInfo = $sep6Info["withdraw"]["EURC"];
+
+            $availableMethods = $withdrawalInfo["funding_methods"];
+
+            $feePercentage = 0;
 
             $withdrawInfo = [
                 "methods" => [],
                 "currency" => "EUR",
             ];
 
-            foreach ($availableChoices as $choice) {
+            foreach ($availableMethods as $method) {
                 $withdrawInfo["methods"][] = [
-                    "name" => $choice,
-                    "description" => "Withdraw EUR via " . $choice,
+                    "name" => $method,
+                    "description" => "Withdraw EUR via " . $method,
                     "fee" => $feePercentage,
-                    "min_amount" => 5.0,
-                    "max_amount" => 10000.0,
-                    "unique_id" => $choice,
+                    "min_amount" => $withdrawalInfo["min_amount"],
+                    "max_amount" => $withdrawalInfo["max_amount"],
+                    "unique_id" => $method,
                 ];
             }
         } elseif ($currency == "USDC") {

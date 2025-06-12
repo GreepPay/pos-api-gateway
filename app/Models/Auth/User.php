@@ -3,6 +3,7 @@
 namespace App\Models\Auth;
 
 use App\Models\User\UserProfile;
+use App\Models\User\Business;
 use App\Models\Wallet\PointTransaction;
 use App\Models\Wallet\Transaction;
 use App\Models\Wallet\Wallet;
@@ -97,6 +98,11 @@ class User extends Model implements AuthenticatableContract
     public function pointTransactions(): HasMany
     {
         return $this->hasMany(PointTransaction::class, "user_id", "id");
+    }
+
+    public function businesses(): HasMany
+    {
+        return $this->hasMany(Business::class, "auth_user_id", "id");
     }
 
     public function getCombinedTransactionsAttribute(): mixed

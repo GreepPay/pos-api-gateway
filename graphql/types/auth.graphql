@@ -19,16 +19,19 @@ type User {
     phone: String
 
     "The user email verified at"
-    email_verified_at: DateTime
+    email_verified_at: String
 
     "The user phone verified at"
-    phone_verified_at: DateTime
+    phone_verified_at: String
 
     "The user status"
     status: String!
 
     "The attached profile"
     profile: Profile! @hasOne
+
+    "The attached businesses"
+    businesses: [Business!]! @hasMany
 
     "The attached wallet"
     wallet: Wallet! @hasOne

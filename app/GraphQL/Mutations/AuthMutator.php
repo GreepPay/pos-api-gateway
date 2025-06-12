@@ -87,28 +87,37 @@ final class AuthMutator
         // Process the array of document uploads directly.
         // Each element in $args['documents'] is expected to be an instance of UploadedFile.
         $documentUrls = [];
-        if (is_array($args["documents"])) {
-            foreach ($args["documents"] as $doc) {
-                // Call your uploadFile function with the file upload.
-                $request = new Request();
-                $request->files->set("attachment", $doc);
-                $url = $this->uploadFile($request, false);
-                $documentUrls[] = $url;
+        if (isset($args["documents"])) {
+            if (is_array($args["documents"])) {
+                foreach ($args["documents"] as $doc) {
+                    // Call your uploadFile function with the file upload.
+                    $request = new Request();
+                    $request->files->set("attachment", $doc);
+                    $url = $this->uploadFile($request, false);
+                    $documentUrls[] = $url;
+                }
+            } else {
+                throw new GraphQLException(
+                    "Invalid 'documents' input. Expected an array of uploads."
+                );
             }
-        } else {
-            throw new GraphQLException(
-                "Invalid 'documents' input. Expected an array of uploads."
-            );
         }
+
+        $otp = (string) rand(1000, 9999);
 
         // Create a new user in auth service
         $authUser = $this->authService->saveUser([
-            "firstName" => $args["first_name"],
-            "lastName" => $args["last_name"],
+            "firstName" => isset($args["first_name"])
+                ? $args["first_name"]
+                : "",
+            "lastName" => isset($args["last_name"]) ? $args["last_name"] : "",
             "email" => $args["email"],
             "password" => $args["password"],
-            "phoneNumber" => $args["phone_number"],
+            "phoneNumber" => isset($args["phone_number"])
+                ? $args["phone_number"]
+                : "",
             "role" => "Business",
+            "otp" => $otp,
         ]);
 
         $authUser = $authUser["data"];
@@ -125,21 +134,9 @@ final class AuthMutator
         // Create a default profile for the user
         $this->userService->createProfile([
             "user_type" => "Business",
-            "auth_user_id" => (string) $authUser["id"],
+            "auth_user_id" => $authUser["id"],
             "default_currency" => $args["default_currency"],
-            "profileData" => [
-                "country" => $args["country"],
-                "city" => $args["state"],
-                "business_name" => $args["business_name"],
-                "documents" => $documentUrls,
-                "logo" => $logoUrl,
-                "category" => isset($args["business_category"])
-                    ? $args["business_category"]
-                    : null,
-                "description" => isset($args["business_description"])
-                    ? $args["business_description"]
-                    : null,
-            ],
+            "profileData" => [],
         ]);
 
         // Let create a default wallet for the user
@@ -165,8 +162,26 @@ final class AuthMutator
             ]);
         }
 
+        if (isset($authUser["otp"])) {
+            if ($authUser["otp"]) {
+                $otp = $authUser["otp"];
+            }
+        }
+
         // Send a verify email notification to the user
-        // TODO: Implement email verification notification
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $authUser["id"],
+            "type" => "email",
+            "email" => $authUser["email"],
+            "title" => "Verify Your Email",
+            "content" => "Hello, your account verification OTP is $otp. Use it to activate your account.",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "",
+                "otp" => $otp,
+                "email" => $authUser["email"],
+            ],
+        ]);
 
         return User::query()->where("id", $authUser["id"])->first();
     }
@@ -188,11 +203,26 @@ final class AuthMutator
         }
 
         // First reset user OTP
-        $this->authService->resetOtp([
+        $user = $this->authService->resetOtp([
             "email" => $userWithEmail->email,
         ]);
 
-        // TODO: Implement email verification notification
+        $userData = $user["data"];
+
+        // Send a verify email notification to the user
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $userData["id"],
+            "type" => "email",
+            "email" => $userData["email"],
+            "title" => "Verify Your Email",
+            "content" => "Hello, your account verification OTP is {$userData["otp"]}. Use it to activate your account.",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "",
+                "otp" => $userData["otp"],
+                "email" => $userData["email"],
+            ],
+        ]);
 
         return true;
     }
@@ -218,7 +248,22 @@ final class AuthMutator
             "email" => $userWithEmail->email,
         ]);
 
-        // TODO: Implement email reset password notification
+        $userData = $user["data"];
+
+        // Send a verify email notification to the user
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $userData["id"],
+            "type" => "email",
+            "email" => $userData["email"],
+            "title" => "Reset Your Password",
+            "content" => "Hello, use this OTP {$userData["otp"]} to reset your password",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "",
+                "otp" => $userData["otp"],
+                "email" => $userData["email"],
+            ],
+        ]);
 
         return true;
     }
@@ -300,8 +345,7 @@ final class AuthMutator
             "otp" => $args["otp"],
         ];
 
-        // Free pass for now, until sending of email verification is implemented
-        // $this->authService->verifyUserOtp($payload);
+        $this->authService->verifyUserOtp($payload);
 
         return true;
     }

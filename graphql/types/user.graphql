@@ -33,6 +33,9 @@ type Business {
     "Unique identifier for the business."
     id: String!
 
+    "Authenticated User ID"
+    auth_user_id: Int!
+
     "Business name."
     business_name: String
 
@@ -42,6 +45,9 @@ type Business {
     "Business location."
     location: String
 
+    "Business category."
+    category: String
+
     "Business banner URL."
     banner: String
 
@@ -50,9 +56,6 @@ type Business {
 
     "Business website URL."
     website: String
-
-    "Business category."
-    category: String
 
     "Business resident permit document URL."
     resident_permit: String
@@ -80,6 +83,18 @@ type Business {
 
     "Business city"
     city: String
+
+    "Attached wallet"
+    wallet: Wallet @hasOne
+
+    "Business Type"
+    business_type: String
+
+    "Business Address"
+    address: String
+
+    "Default Currency"
+    default_currency: String
 }
 
 "Verification request details."

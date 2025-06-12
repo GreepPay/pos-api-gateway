@@ -14,4 +14,45 @@ extend type Mutation @guard {
         business_category: String
         business_description: String
     ): Boolean! @field(resolver: "UserMutator@updateProfile")
+
+    "Create a business profile"
+    CreateBusinessProfile(
+        business_name: String!
+        business_type: String!
+        business_logo: Upload
+        location: String!
+        category: String
+        banner: Upload
+        description: String
+        website: String
+        resident_permit: Upload
+        passport: Upload
+        registration_number: String
+        documents: [Upload!]
+        country: String
+        city: String
+        address: String
+        default_currency: String
+    ): Business! @field(resolver: "UserMutator@createBusinessProfile")
+
+    "Update a business profile"
+    UpdateBusinessProfile(
+        business_uuid: String!
+        business_name: String
+        business_type: String
+        business_logo: Upload
+        location: String
+        category: String
+        banner: Upload
+        description: String
+        website: String
+        resident_permit: Upload
+        passport: Upload
+        registration_number: String
+        documents: [Upload!]
+        country: String
+        city: String
+        address: String
+        default_currency: String
+    ): Business! @field(resolver: "UserMutator@updateBusinessProfile")
 }

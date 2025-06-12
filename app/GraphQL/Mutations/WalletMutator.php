@@ -174,6 +174,8 @@ final class WalletMutator
                 $wallet->blockchain_account_id
             )["data"];
 
+            Log::debug($accountSecret);
+
             $userKYCStatus = $this->offrampService->getKycStatus([
                 "slug" => "mykobo",
                 "account" => $accountSecret,

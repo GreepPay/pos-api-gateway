@@ -3,8 +3,10 @@
 namespace App\Models\User;
 
 use App\Models\Auth\User;
+use App\Models\Wallet\Wallet;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
 /**
@@ -63,5 +65,10 @@ class Business extends Model
             foreignKey: "auth_user_id",
             ownerKey: "id"
         );
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, "business_id", "id");
     }
 }

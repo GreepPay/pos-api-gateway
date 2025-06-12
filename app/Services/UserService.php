@@ -83,4 +83,27 @@ class UserService
     {
         return $this->userNetwork->post("/v1/verifications", $request);
     }
+
+    // Business Profiles
+    /**
+     * Create business profile.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function createBusinessProfile(array $request)
+    {
+        return $this->userNetwork->post("/v1/profile/business", $request);
+    }
+
+    /**
+     * Update business profile.
+     *
+     * @param array $request
+     * @return mixed
+     */
+    public function updateBusinessProfile(array $request)
+    {
+        return $this->userNetwork->put("/v1/profile/business", $request);
+    }
 }

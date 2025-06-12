@@ -219,7 +219,7 @@ final class UserMutator
         // Activate the blockchain account
         $this->blockchainService->activateAccount($blockchainAccount["id"]);
 
-        return Business::query()->where("id", $business["id"]);
+        return Business::query()->where("id", $business["id"])->first();
     }
 
     /**

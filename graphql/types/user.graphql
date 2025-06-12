@@ -13,7 +13,7 @@ type Profile {
     verification_status: String!
 
     "The attached customer"
-    business: Business! @hasOne
+    business: Business @hasOne
 
     "All attached verifications"
     verifications: [Verification!]! @hasMany
@@ -22,7 +22,7 @@ type Profile {
     updated_at: DateTime!
 
     "Default Currency"
-    default_currency: String!
+    default_currency: String
 
     "Profile Created At"
     created_at: DateTime!

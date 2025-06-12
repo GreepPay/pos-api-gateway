@@ -21,6 +21,7 @@ jobs:
         with:
           host: "${{ secrets.SSH_HOST }}"
           username: "${{ secrets.SSH_USER }}"
+          command_timeout: 30m
           key: "${{ secrets.SSH_PRIVATE_KEY }}"
           script: |
             cd ~/GreepAppConfigs/greep-pos-api
@@ -93,6 +94,7 @@ jobs:
         with:
           host: "${{ secrets.SSH_HOST }}"
           username: "${{ secrets.SSH_USER }}"
+          command_timeout: 30m
           key: "${{ secrets.SSH_PRIVATE_KEY }}"
           script: |
             cd ~/GreepAppConfigs/greep-pos-api

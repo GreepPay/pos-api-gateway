@@ -52,7 +52,11 @@ final class UserMutator
         }
 
         // Update names in auth service
-        if (isset($args["first_name"]) || isset($args["last_name"])) {
+        if (
+            isset($args["first_name"]) ||
+            isset($args["last_name"]) ||
+            isset($args["auth_passcode"])
+        ) {
             $this->authService->updateAuthUserProfile([
                 "userUuid" => $authUser->uuid,
                 "firstName" => isset($args["first_name"])
@@ -63,6 +67,9 @@ final class UserMutator
                     : null,
                 "phoneNumber" => isset($args["phone_number"])
                     ? $args["phone_number"]
+                    : null,
+                "transactionPin" => isset($args["auth_passcode"])
+                    ? $args["auth_passcode"]
                     : null,
             ]);
         }

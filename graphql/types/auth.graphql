@@ -37,7 +37,7 @@ type User {
     wallet: Wallet! @hasOne
 
     "The auth passcode"
-    transactionPin: String
+    transaction_pin: String
 
     "The user created at"
     created_at: DateTime!
